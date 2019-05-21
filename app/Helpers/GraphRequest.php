@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 use Curl\Curl;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class GraphRequest
@@ -69,7 +70,6 @@ class GraphRequest
      */
     protected $responseError = null;
 
-
     /**
      * @param      $method
      * @param      $param
@@ -97,10 +97,10 @@ class GraphRequest
         if (!$token) {
             $this->headers = array_merge([
                 'Content-Type'  => 'application/json',
-                'Authorization' => 'Bearer '.$this->accessToken,
+                'Authorization' => 'Bearer ' . $this->accessToken,
             ], $this->headers);
-            if (stripos($this->endpoint, "http") !== 0) {
-                $this->endpoint = $this->apiVersion.$this->endpoint;
+            if (stripos($this->endpoint, 'http') !== 0) {
+                $this->endpoint = $this->apiVersion . $this->endpoint;
             }
         }
         $this->requestType = strtoupper($method);
@@ -113,8 +113,8 @@ class GraphRequest
             CURLOPT_ENCODING       => 'gzip,deflate',
         ];
         if ($this->requestBody) {
-            $options = array_add($options, CURLOPT_POST, true);
-            $options = array_add(
+            $options = Arr::add($options, CURLOPT_POST, true);
+            $options = Arr::add(
                 $options,
                 CURLOPT_POSTFIELDS,
                 $this->requestBody
@@ -163,7 +163,7 @@ class GraphRequest
     public function setAccessToken($accessToken)
     {
         $this->accessToken = $accessToken;
-        $this->headers['Authorization'] = 'Bearer '.$this->accessToken;
+        $this->headers['Authorization'] = 'Bearer ' . $this->accessToken;
 
         return $this;
     }

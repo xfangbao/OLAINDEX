@@ -1,7 +1,7 @@
 @extends('mdui.layouts.main')
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/store@2/dist/store.everything.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jquery-lazyload@1/jquery.lazyload.min.js"></script>
+    <script src="https://cdnjs.loli.net/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
     <script>
         function getDirect() {
             $("#dl").val('');
@@ -49,9 +49,30 @@
         <div class="mdui-row list-view mdui-hidden">
             <ul class="mdui-list">
                 <li class="mdui-list-item th">
-                    <div class="mdui-col-xs-12 mdui-col-sm-7">文件</div>
-                    <div class="mdui-col-sm-3 mdui-text-right">修改时间</div>
-                    <div class="mdui-col-sm-2 mdui-text-right">大小</div>
+                    <div class="mdui-col-xs-12 mdui-col-sm-7">
+                        文件
+                        @if(\App\Helpers\Tool::getOrderByStatus('name'))
+                            <a href="?orderBy=name,asc"><i class="fa fa-arrow-down"></i></a>
+                        @else
+                            <a href="?orderBy=name,desc"><i class="fa fa-arrow-up"></i></a>
+                        @endif
+                    </div>
+                    <div class="mdui-col-sm-3 mdui-text-right">
+                        修改时间
+                        @if(\App\Helpers\Tool::getOrderByStatus('lastModifiedDateTime'))
+                            <a href="?orderBy=lastModifiedDateTime,asc"><i class="fa fa-arrow-down"></i></a>
+                        @else
+                            <a href="?orderBy=lastModifiedDateTime,desc"><i class="fa fa-arrow-up"></i></a>
+                        @endif
+                    </div>
+                    <div class="mdui-col-sm-2 mdui-text-right">
+                        大小
+                        @if(\App\Helpers\Tool::getOrderByStatus('size'))
+                            <a href="?orderBy=size,asc"><i class="fa fa-arrow-down"></i></a>
+                        @else
+                            <a href="?orderBy=size,desc"><i class="fa fa-arrow-up"></i></a>
+                        @endif
+                    </div>
                 </li>
                 @if(!blank($path_array))
                     <li class="mdui-list-item mdui-ripple">
@@ -67,7 +88,7 @@
                 @endif
 
                 @foreach($items as $item)
-                    @if(array_has($item,'folder'))
+                    @if( Arr::has($item,'folder'))
                         <li class="mdui-list-item mdui-ripple">
                             <a href="{{ route('home',\App\Helpers\Tool::getEncodeUrl($origin_path ? $origin_path.'/'.$item['name'] : $item['name'])) }}">
                                 <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
@@ -75,9 +96,9 @@
                                     {{ $item['name'] }}
                                 </div>
                                 <div
-                                    class="mdui-col-sm-3 mdui-text-right">{{ date('M d H:i',strtotime($item['lastModifiedDateTime'])) }}</div>
+                                    class="mdui-col-sm-3 mdui-text-right">{{ Carbon\Carbon::parse($item['lastModifiedDateTime'])->diffForHumans() }}</div>
                                 <div
-                                    class="mdui-col-sm-2 mdui-text-right">{{ array_has($item,'folder')? '-' : \App\Helpers\Tool::convertSize($item['size']) }}</div>
+                                    class="mdui-col-sm-2 mdui-text-right">{{  Arr::has($item,'folder')? '-' : \App\Helpers\Tool::convertSize($item['size']) }}</div>
                             </a>
                         </li>
                     @else
@@ -89,13 +110,13 @@
                                     {{ $item['name'] }}
                                 </div>
                                 <div
-                                    class="mdui-col-sm-3 mdui-text-right">{{ date('M d H:i',strtotime($item['lastModifiedDateTime'])) }}</div>
+                                    class="mdui-col-sm-3 mdui-text-right">{{ Carbon\Carbon::parse($item['lastModifiedDateTime'])->diffForHumans() }}</div>
                                 <div
-                                    class="mdui-col-sm-2 mdui-text-right">{{ array_has($item,'folder')? '-' : \App\Helpers\Tool::convertSize($item['size']) }}</div>
+                                    class="mdui-col-sm-2 mdui-text-right">{{  Arr::has($item,'folder')? '-' : \App\Helpers\Tool::convertSize($item['size']) }}</div>
                             </a>
                         </li>
                     @endif
-                    @if(array_has($item,'file'))
+                    @if( Arr::has($item,'file'))
                         <a class="dl_url mdui-hidden"
                            href="{{ route('download',\App\Helpers\Tool::getEncodeUrl($origin_path ? $origin_path.'/'.$item['name'] : $item['name'])) }}"></a>
                     @endif
@@ -124,7 +145,7 @@
                 </div>
             @endif
             @foreach($items as $item)
-                @if(array_has($item,'folder'))
+                @if( Arr::has($item,'folder'))
                     <div class="mdui-col">
                         <a href="{{ route('home',\App\Helpers\Tool::getEncodeUrl($origin_path ? $origin_path.'/'.$item['name'] : $item['name'])) }}">
                             <div class="col-icon">
@@ -138,7 +159,7 @@
                                 </div>
                                 <br/>
                                 <div class="col-date">
-                                    {{ date('M d H:i',strtotime($item['lastModifiedDateTime'])) }}
+                                    {{ Carbon\Carbon::parse($item['lastModifiedDateTime'])->diffForHumans() }}
                                 </div>
                             </div>
                         </a>
@@ -150,7 +171,7 @@
                             <div class="col-icon">
                                 @if(in_array($item['ext'],explode(' ',\App\Helpers\Tool::config('image'))))
                                     <img class="lazy"
-                                         data-original="{{ array_get($item,'thumbnails.0.small.url') }}"
+                                         data-original="{{  Arr::get($item,'thumbnails.0.small.url') }}"
                                          src="{{ asset('img/loading.gif') }}" alt="">
                                 @else
                                     <img
@@ -164,7 +185,7 @@
                                 </div>
                                 <br/>
                                 <div class="col-date">
-                                    {{ date('M d H:i',strtotime($item['lastModifiedDateTime'])) }}
+                                    {{ Carbon\Carbon::parse($item['lastModifiedDateTime'])->diffForHumans() }}
                                 </div>
                             </div>
                         </a>

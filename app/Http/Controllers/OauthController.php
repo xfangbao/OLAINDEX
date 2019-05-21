@@ -6,6 +6,7 @@ use App\Helpers\Constants;
 use App\Helpers\Tool;
 use Curl\Curl;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 
@@ -17,7 +18,6 @@ use Illuminate\Support\Facades\Session;
  */
 class OauthController extends Controller
 {
-
     /**
      * @var string
      */
@@ -58,11 +58,11 @@ class OauthController extends Controller
         $this->client_secret = Tool::config('client_secret');
         $this->redirect_uri = Tool::config('redirect_uri');
         $this->authorize_url = Tool::config('account_type', 'com') === 'com'
-            ? Constants::AUTHORITY_URL.Constants::AUTHORIZE_ENDPOINT
-            : Constants::AUTHORITY_URL_21V.Constants::AUTHORIZE_ENDPOINT_21V;
+            ? Constants::AUTHORITY_URL . Constants::AUTHORIZE_ENDPOINT
+            : Constants::AUTHORITY_URL_21V . Constants::AUTHORIZE_ENDPOINT_21V;
         $this->access_token_url = Tool::config('account_type', 'com') === 'com'
-            ? Constants::AUTHORITY_URL.Constants::TOKEN_ENDPOINT
-            : Constants::AUTHORITY_URL_21V.Constants::TOKEN_ENDPOINT_21V;
+            ? Constants::AUTHORITY_URL . Constants::TOKEN_ENDPOINT
+            : Constants::AUTHORITY_URL_21V . Constants::TOKEN_ENDPOINT_21V;
         $this->scopes = Constants::SCOPES;
     }
 
@@ -88,7 +88,7 @@ class OauthController extends Controller
                     Tool::showMessage('Invalid state', false);
                     Session::forget('state');
 
-                    return view(config('olaindex.theme').'message');
+                    return view(config('olaindex.theme') . 'message');
                 }
                 Session::forget('state'); // 兼容下次登陆
                 $code = $request->get('code');
@@ -100,7 +100,7 @@ class OauthController extends Controller
                     'grant_type'    => 'authorization_code',
                 ];
                 if (Tool::config('account_type', 'com') === 'cn') {
-                    $form_params = array_add(
+                    $form_params = Arr::add(
                         $form_params,
                         'resource',
                         Constants::REST_ENDPOINT_21V
@@ -116,18 +116,15 @@ class OauthController extends Controller
                             'msg'  => $curl->errorMessage,
                         ]
                     );
-                    $msg = 'Error: '.$curl->errorCode.': '.$curl->errorMessage
-                        ."\n";
+                    $msg = 'Error: ' . $curl->errorCode . ': ' . $curl->errorMessage . "\n";
                     Tool::showMessage($msg, false);
 
-                    return view(config('olaindex.theme').'message');
+                    return view(config('olaindex.theme') . 'message');
                 } else {
                     $token = collect($curl->response)->toArray();
                     $access_token = $token['access_token'];
                     $refresh_token = $token['refresh_token'];
-                    $expires = (int)$token['expires_in'] != 0 ? time()
-                        + $token['expires_in']
-                        : 0;
+                    $expires = (int)$token['expires_in'] != 0 ? time() + $token['expires_in'] : 0;
                     $data = [
                         'access_token'         => $access_token,
                         'refresh_token'        => $refresh_token,
@@ -141,7 +138,7 @@ class OauthController extends Controller
         } else {
             Tool::showMessage('Invalid Request', false);
 
-            return view(config('olaindex.theme').'message');
+            return view(config('olaindex.theme') . 'message');
         }
     }
 
@@ -153,8 +150,8 @@ class OauthController extends Controller
     public function authorizeLogin($url = '')
     {
         // 跳转授权登录
-//        $state = str_random(32);
-        $state = urlencode($url ? 'http://'.$url : config('app.url')); // 添加中转
+        // $state = str_random(32);
+        $state = urlencode($url ? 'http://' . $url : config('app.url')); // 添加中转
         Session::put('state', $state);
         $values = [
             'client_id'     => $this->client_id,
@@ -164,7 +161,7 @@ class OauthController extends Controller
             'state'         => $state,
         ];
         $query = http_build_query($values, '', '&', PHP_QUERY_RFC3986);
-        $authorizationUrl = $this->authorize_url."?{$query}";
+        $authorizationUrl = $this->authorize_url . "?{$query}";
 
         return redirect()->away($authorizationUrl);
     }
@@ -191,7 +188,7 @@ class OauthController extends Controller
             'grant_type'    => 'refresh_token',
         ];
         if (Tool::config('account_type', 'com') === 'cn') {
-            $form_params = array_add(
+            $form_params = Arr::add(
                 $form_params,
                 'resource',
                 Constants::REST_ENDPOINT_21V
@@ -216,9 +213,7 @@ class OauthController extends Controller
             $token = collect($curl->response)->toArray();
             $access_token = $token['access_token'];
             $refresh_token = $token['refresh_token'];
-            $expires = (int)$token['expires_in'] != 0 ? time()
-                + $token['expires_in']
-                : 0;
+            $expires = (int)$token['expires_in'] != 0 ? time() + $token['expires_in'] : 0;
             $data = [
                 'access_token'         => $access_token,
                 'refresh_token'        => $refresh_token,

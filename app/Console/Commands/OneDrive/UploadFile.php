@@ -5,6 +5,7 @@ namespace App\Console\Commands\OneDrive;
 use App\Helpers\Tool;
 use App\Helpers\OneDrive;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 
 class UploadFile extends Command
 {
@@ -16,8 +17,9 @@ class UploadFile extends Command
     protected $signature = 'od:upload
                             {local : Local Path}
                             {remote : Remote Path}
-                            {--chuck=5242880 : Chuck Size(byte) }';
-
+                            {--folder : Upload File Folder}
+                            {--archive : Archive File}
+                            {--chuck=104857600 : Chuck Size(byte)}';
     /**
      * The console command description.
      *
@@ -44,6 +46,23 @@ class UploadFile extends Command
         $local = $this->argument('local');
         $remote = $this->argument('remote');
         $chuck = $this->option('chuck');
+        $folder = $this->option('folder');
+        $archive = !empty($this->option('archive')) ? true : false;
+
+        $local = OneDrive::compressedFile($local, $archive);
+        if (!$local) {
+            return $this->error('file not found!');
+        }
+
+        if (!empty($folder)) {
+            $this->uploadFolder($local, $remote, $chuck);
+        } else {
+            $this->uploadFile($local, $remote, $chuck);
+        }
+    }
+
+    public function uploadFile($local, $remote, $chuck)
+    {
         $file_size = OneDrive::readFileSize($local);
         if ($file_size < 4194304) {
             return $this->upload($local, $remote);
@@ -62,9 +81,14 @@ class UploadFile extends Command
     {
         $content = file_get_contents($local);
         $file_name = basename($local);
-        $response = OneDrive::uploadByPath($remote.$file_name, $content);
-        $response['errno'] === 0 ? $this->info('Upload Success!')
-            : $this->warn('Failed!');
+        $response = OneDrive::uploadByPath($remote . $file_name, $content);
+
+        if ($response['errno'] === 0) {
+            $this->info('Upload Success!');
+            @unlink($local);
+        } else {
+            $this->warn('Failed!');
+        }
     }
 
     /**
@@ -80,9 +104,9 @@ class UploadFile extends Command
         $file_size = OneDrive::readFileSize($local);
         $file_name = basename($local);
         $target_path = Tool::getAbsolutePath($remote);
-        $url_response = OneDrive::createUploadSession($target_path.$file_name);
+        $url_response = OneDrive::createUploadSession($target_path . $file_name);
         if ($url_response['errno'] === 0) {
-            $url = array_get($url_response, 'data.uploadUrl');
+            $url = Arr::get($url_response, 'data.uploadUrl');
         } else {
             $this->warn($url_response['msg']);
             exit;
@@ -106,7 +130,7 @@ class UploadFile extends Command
                     $this->info("length: {$data['nextExpectedRanges'][0]}");
                     $ranges = explode('-', $data['nextExpectedRanges'][0]);
                     $offset = intval($ranges[0]);
-                    $status = @floor($offset / $file_size * 100).'%';
+                    $status = @floor($offset / $file_size * 100) . '%';
                     $this->info("success. progress:{$status}");
                     $done = false;
                 } elseif (!empty($data['@content.downloadUrl'])
@@ -114,6 +138,7 @@ class UploadFile extends Command
                 ) {
                     $this->info('Upload Success!');
                     $done = true;
+                    @unlink($local);
                 } else {
                     $retry++;
                     if ($retry <= 3) {
@@ -131,5 +156,73 @@ class UploadFile extends Command
                 break;
             }
         }
+    }
+
+    /**
+     * upload file folder
+     *
+     * @param     $local
+     * @param     $remote
+     * @param int $chunk
+     * @return void
+     */
+    public function uploadFolder($local, $remote = '/', $chunk)
+    {
+        $local = realpath($local);
+        $remote = $this->getAbsolutePath($remote);
+        $this->folderToUpload($local, $remote, $chunk);
+    }
+
+    /**
+     * Recursively get the file path
+     *
+     * @param     $local
+     * @param     $remote
+     * @param int $chunk
+     * @return void
+     */
+    public function folderToUpload($local, $remote, $chunk)
+    {
+        $files = scandir($local);
+
+        foreach ($files as $file) {
+            if (in_array($file, ['.', '..', '.DS_Store'])) {
+                continue;
+            }
+
+            if (is_dir($local . '/' . $file)) {
+                $this->folderToUpload($local . '/' . $file, $remote . $file . '/', $chunk);
+            } else {
+                $localfile = realpath($local . '/' . $file);
+                $this->uploadFile($localfile, $remote, $chunk);
+            }
+        }
+    }
+
+    /**
+     * get file absolute path
+     *
+     * @param [type] $path
+     * @return void
+     */
+    public function getAbsolutePath($path)
+    {
+        $path = str_replace(['/', '\\', '//'], '/', $path);
+        $parts = array_filter(explode('/', $path), 'strlen');
+        $absolutes = [];
+
+        foreach ($parts as $part) {
+            if ('.' == $part) {
+                continue;
+            }
+
+            if ('..' == $part) {
+                array_pop($absolutes);
+            } else {
+                $absolutes[] = $part;
+            }
+        }
+
+        return str_replace('//', '/', '/' . implode('/', $absolutes) . '/');
     }
 }

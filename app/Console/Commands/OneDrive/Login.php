@@ -6,6 +6,7 @@ use App\Helpers\Constants;
 use App\Helpers\Tool;
 use Curl\Curl;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
 
 class Login extends Command
@@ -66,11 +67,11 @@ class Login extends Command
         $this->client_secret = Tool::config('client_secret');
         $this->redirect_uri = Tool::config('redirect_uri');
         $this->authorize_url = Tool::config('account_type', 'com') === 'com'
-            ? Constants::AUTHORITY_URL.Constants::AUTHORIZE_ENDPOINT
-            : Constants::AUTHORITY_URL_21V.Constants::AUTHORIZE_ENDPOINT_21V;
+            ? Constants::AUTHORITY_URL . Constants::AUTHORIZE_ENDPOINT
+            : Constants::AUTHORITY_URL_21V . Constants::AUTHORIZE_ENDPOINT_21V;
         $this->access_token_url = Tool::config('account_type', 'com') === 'com'
-            ? Constants::AUTHORITY_URL.Constants::TOKEN_ENDPOINT
-            : Constants::AUTHORITY_URL_21V.Constants::TOKEN_ENDPOINT_21V;
+            ? Constants::AUTHORITY_URL . Constants::TOKEN_ENDPOINT
+            : Constants::AUTHORITY_URL_21V . Constants::TOKEN_ENDPOINT_21V;
         $this->scopes = Constants::SCOPES;
     }
 
@@ -96,7 +97,7 @@ class Login extends Command
                     'redirect_uri',
                     Constants::DEFAULT_REDIRECT_URI
                 );
-                $cache_expires = $this->ask('cache expires (min)');
+                $cache_expires = $this->ask('cache expires (s)');
                 $data = [
                     'client_id'     => $client_id,
                     'client_secret' => $client_secret,
@@ -117,7 +118,7 @@ class Login extends Command
             'response_type' => 'code',
         ];
         $query = http_build_query($values, '', '&', PHP_QUERY_RFC3986);
-        $authorizationUrl = $this->authorize_url."?{$query}";
+        $authorizationUrl = $this->authorize_url . "?{$query}";
         $this->info("Please copy this link to your browser to open.\n{$authorizationUrl}");
         $code = $this->ask('Please enter the code obtained by the browser.');
         $form_params = [
@@ -128,7 +129,7 @@ class Login extends Command
             'grant_type'    => 'authorization_code',
         ];
         if (Tool::config('account_type', 'com') === 'cn') {
-            $form_params = array_add(
+            $form_params = Arr::add(
                 $form_params,
                 'resource',
                 Constants::REST_ENDPOINT_21V
@@ -144,7 +145,7 @@ class Login extends Command
                     'msg'  => $curl->errorMessage,
                 ]
             );
-            $msg = 'Error: '.$curl->errorCode.': '.$curl->errorMessage."\n";
+            $msg = 'Error: ' . $curl->errorCode . ': ' . $curl->errorMessage . "\n";
 
             exit($msg);
         } else {
@@ -160,7 +161,7 @@ class Login extends Command
             ];
             Tool::updateConfig($data);
             $this->info('Login Success!');
-            $this->info('Account ['.Tool::getBindAccount().']');
+            $this->info('Account [' . Tool::getBindAccount() . ']');
         }
     }
 }

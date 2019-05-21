@@ -5,6 +5,7 @@ namespace App\Console\Commands\OneDrive;
 use App\Helpers\OneDrive;
 use App\Helpers\Tool;
 use Illuminate\Console\Command;
+use Illuminate\Support\Arr;
 
 class RefreshCache extends Command
 {
@@ -54,7 +55,7 @@ class RefreshCache extends Command
         $response = OneDrive::getChildrenByPath(
             $path,
             '?select=id,eTag,name,size,lastModifiedDateTime,file,image,folder,@microsoft.graph.downloadUrl'
-            .'&expand=thumbnails'
+            . '&expand=thumbnails'
         );
 
         return $response['errno'] === 0 ? $response['data'] : null;
@@ -72,7 +73,7 @@ class RefreshCache extends Command
         $data = $this->getChildren($path);
         if (is_array($data)) {
             \Illuminate\Support\Facades\Cache::put(
-                'one:list:'.$path,
+                'one:list:' . $path,
                 $data,
                 Tool::config('expires')
             );
@@ -80,8 +81,8 @@ class RefreshCache extends Command
             exit('Cache Error!');
         }
         foreach ((array)$data as $item) {
-            if (array_has($item, 'folder')) {
-                $this->getRecursive($path.$item['name'].'/');
+            if (Arr::has($item, 'folder')) {
+                $this->getRecursive($path . $item['name'] . '/');
             }
         }
     }

@@ -18,7 +18,7 @@ class CheckAuth
     public function handle($request, Closure $next)
     {
         if (!Session::has('LogInfo')) {
-            return redirect()->route('login');
+            return redirect()->route('admin.login');
         }
         Session::put('LogInfo.LastActivityTime', time());
 

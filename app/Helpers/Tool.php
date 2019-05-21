@@ -6,6 +6,7 @@ use App\Http\Controllers\OauthController;
 use Curl\Curl;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -88,7 +89,7 @@ class Tool
      */
     public static function convertSize($size)
     {
-        $units = array(' B', ' KB', ' MB', ' GB', ' TB');
+        $units = [' B', ' KB', ' MB', ' GB', ' TB'];
         for ($i = 0; $size >= 1024 && $i < 4; $i++) {
             $size /= 1024;
         }
@@ -140,6 +141,21 @@ class Tool
             Paginator::resolveCurrentPage(),
             ['path' => Paginator::resolveCurrentPath()]
         );
+    }
+
+    public static function getOrderByStatus($field)
+    {
+        $order = request()->get('orderBy');
+        @list($search_field, $sortBy) = explode(',', $order);
+        if ($field !== $search_field) {
+            return true;
+        } else {
+            if (strtolower($sortBy) !== 'desc') {
+                return false;
+            } else {
+                return true;
+            }
+        }
     }
 
     /**
@@ -285,7 +301,7 @@ class Tool
      */
     public static function config($key = '', $default = '')
     {
-        $config = Cache::remember('config', 1440, function () {
+        $config = Cache::remember('config', 1440 * 60, function () {
             $file = storage_path('app/config.json');
             if (!file_exists($file)) {
                 copy(
@@ -297,7 +313,7 @@ class Tool
             return self::readJson($file);
         });
 
-        return $key ? (array_has($config, $key) ? (array_get($config, $key)
+        return $key ? (Arr::has($config, $key) ? (array_get($config, $key)
             ?: $default) : $default) : $config;
     }
 
@@ -436,10 +452,10 @@ class Tool
         $curl->setTimeout(120);
         $curl->setRetry(3);
         $curl->setOpts([
-            CURLOPT_AUTOREFERER => true,
-            CURLOPT_FAILONERROR => true,
+            CURLOPT_AUTOREFERER    => true,
+            CURLOPT_FAILONERROR    => true,
             CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_ENCODING => 'gzip,deflate',
+            CURLOPT_ENCODING       => 'gzip,deflate',
         ]);
         $curl->get($url);
         $curl->close();
@@ -448,7 +464,7 @@ class Tool
                 'Get OneDrive file content error.',
                 [
                     'code' => $curl->errorCode,
-                    'msg' => $curl->errorMessage,
+                    'msg'  => $curl->errorMessage,
                 ]
             );
             Tool::showMessage('Error: ' . $curl->errorCode . ': '
@@ -535,7 +551,7 @@ class Tool
                 function () {
                     $response = OneDrive::getMe();
                     if ($response['errno'] == 0) {
-                        return array_get($response, 'data.userPrincipalName');
+                        return Arr::get($response, 'data.userPrincipalName');
                     } else {
                         return '';
                     }
@@ -594,7 +610,7 @@ class Tool
     public static function fileIcon($ext)
     {
         if (in_array($ext, ['ogg', 'mp3', 'wav'])) {
-            return "audiotrack";
+            return 'audiotrack';
         }
         if (in_array($ext, ['apk'])) {
             return 'android';
@@ -612,7 +628,7 @@ class Tool
             'jpe',
         ])
         ) {
-            return "image";
+            return 'image';
         }
         if (in_array($ext, [
             'mp4',
@@ -629,7 +645,7 @@ class Tool
             'asf',
         ])
         ) {
-            return "ondemand_video";
+            return 'ondemand_video';
         }
         if (in_array($ext, [
             'html',
@@ -648,6 +664,6 @@ class Tool
             return 'code';
         }
 
-        return "insert_drive_file";
+        return 'insert_drive_file';
     }
 }

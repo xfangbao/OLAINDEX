@@ -6,8 +6,10 @@ use App\Helpers\Constants;
 use App\Helpers\OneDrive;
 use App\Helpers\Tool;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 /**
  * OneDriveGraph 索引
@@ -17,7 +19,6 @@ use Illuminate\Support\Facades\Session;
  */
 class IndexController extends Controller
 {
-
     /**
      * 缓存超时时间 建议10分钟以下，否则会导致资源失效
      *
@@ -47,20 +48,20 @@ class IndexController extends Controller
         $this->middleware([
             'checkInstall',
             'checkToken',
+            'checkUserAuth',
             'handleIllegalFile',
         ]);
-        $this->middleware('HandleEncryptDir')
-            ->only(Tool::config('encrypt_option', ['list']));
+        $this->middleware('HandleEncryptDir')->only(Tool::config('encrypt_option', ['list']));
         $this->expires = Tool::config('expires', 10);
         $this->root = Tool::config('root', '/');
         $this->show = [
             'stream' => explode(' ', Tool::config('stream')),
-            'image' => explode(' ', Tool::config('image')),
-            'video' => explode(' ', Tool::config('video')),
-            'dash' => explode(' ', Tool::config('dash')),
-            'audio' => explode(' ', Tool::config('audio')),
-            'code' => explode(' ', Tool::config('code')),
-            'doc' => explode(' ', Tool::config('doc')),
+            'image'  => explode(' ', Tool::config('image')),
+            'video'  => explode(' ', Tool::config('video')),
+            'dash'   => explode(' ', Tool::config('dash')),
+            'audio'  => explode(' ', Tool::config('audio')),
+            'code'   => explode(' ', Tool::config('code')),
+            'doc'    => explode(' ', Tool::config('doc')),
         ];
     }
 
@@ -74,7 +75,6 @@ class IndexController extends Controller
     {
         return $this->list($request);
     }
-
 
     /**
      * @param Request $request
@@ -111,7 +111,7 @@ class IndexController extends Controller
                 return view(config('olaindex.theme') . 'message');
             }
         }
-        if (array_has($item, '@microsoft.graph.downloadUrl')) {
+        if (Arr::has($item, '@microsoft.graph.downloadUrl')) {
             return redirect()->away($item['@microsoft.graph.downloadUrl']);
         }
         // 获取列表
@@ -121,8 +121,7 @@ class IndexController extends Controller
         } else {
             $response = OneDrive::getChildrenByPath(
                 $graphPath,
-                '?select=id,eTag,name,size,lastModifiedDateTime,file,image,folder,@microsoft.graph.downloadUrl'
-                . '&expand=thumbnails'
+                '?select=id,eTag,name,size,lastModifiedDateTime,file,image,folder,@microsoft.graph.downloadUrl&expand=thumbnails'
             );
 
             if ($response['errno'] === 0) {
@@ -143,8 +142,8 @@ class IndexController extends Controller
         }
         $hasImage = Tool::hasImages($origin_items);
         // 过滤微软OneNote文件
-        $origin_items = array_where($origin_items, function ($value) {
-            return !array_has($value, 'package.type');
+        $origin_items = Arr::where($origin_items, function ($value) {
+            return !Arr::has($value, 'package.type');
         });
         // 处理 head/readme
         $head = array_key_exists('HEAD.md', $origin_items)
@@ -154,13 +153,15 @@ class IndexController extends Controller
             ? Tool::markdown2Html(Tool::getFileContent($origin_items['README.md']['@microsoft.graph.downloadUrl']))
             : '';
         if (!Session::has('LogInfo')) {
-            $origin_items = array_except(
+            $origin_items = Arr::except(
                 $origin_items,
                 ['README.md', 'HEAD.md', '.password', '.deny']
             );
         }
         $items = Tool::paginate($origin_items, $limit);
+        $parent_item = $item;
         $data = compact(
+            'parent_item',
             'items',
             'origin_items',
             'origin_path',
@@ -184,7 +185,7 @@ class IndexController extends Controller
     {
         $absolutePath = Tool::getAbsolutePath($realPath);
         $absolutePathArr = explode('/', $absolutePath);
-        $absolutePathArr = array_where($absolutePathArr, function ($value) {
+        $absolutePathArr = Arr::where($absolutePathArr, function ($value) {
             return $value !== '';
         });
         $name = array_pop($absolutePathArr);
@@ -229,7 +230,7 @@ class IndexController extends Controller
             return redirect()->route('home');
         }
         $file = $this->getFileOrCache($realPath);
-        if (is_null($file) || array_has($file, 'folder')) {
+        if (is_null($file) || Arr::has($file, 'folder')) {
             Tool::showMessage('获取文件失败，请检查路径或稍后重试', false);
 
             return view(config('olaindex.theme') . 'message');
@@ -252,41 +253,41 @@ class IndexController extends Controller
                         if ($key === 'stream') {
                             $fileType
                                 = empty(Constants::FILE_STREAM[$file['ext']])
-                                ? "application/octet-stream"
+                                ? 'application/octet-stream'
                                 : Constants::FILE_STREAM[$file['ext']];
 
                             return response(
                                 $file['content'],
                                 200,
-                                ['Content-type' => $fileType,]
+                                ['Content-type' => $fileType, ]
                             );
                         }
                     }
                 }
                 // 处理缩略图
                 if (in_array($key, ['image', 'dash', 'video'])) {
-                    $file['thumb'] = array_get($file, 'thumbnails.0.large.url');
+                    $file['thumb'] = Arr::get($file, 'thumbnails.0.large.url');
                 }
                 // dash视频流
                 if ($key === 'dash') {
                     if (!strpos(
                         $file['@microsoft.graph.downloadUrl'],
-                        "sharepoint.com"
+                        'sharepoint.com'
                     )
                     ) {
                         return redirect()->away($file['download']);
                     }
                     $replace = str_replace(
-                        "thumbnail",
-                        "videomanifest",
+                        'thumbnail',
+                        'videomanifest',
                         $file['thumb']
                     );
                     $file['dash'] = $replace
-                        . "&part=index&format=dash&useScf=True&pretranscode=0&transcodeahead=0";
+                        . '&part=index&format=dash&useScf=True&pretranscode=0&transcodeahead=0';
                 }
                 // 处理微软文档
                 if ($key === 'doc') {
-                    $url = "https://view.officeapps.live.com/op/view.aspx?src="
+                    $url = 'https://view.officeapps.live.com/op/view.aspx?src='
                         . urlencode($file['@microsoft.graph.downloadUrl']);
 
                     return redirect()->away($url);
@@ -323,7 +324,7 @@ class IndexController extends Controller
             return view(config('olaindex.theme') . 'message');
         }
         $file = $this->getFileOrCache($realPath);
-        if (is_null($file) || array_has($file, 'folder')) {
+        if (is_null($file) || Arr::has($file, 'folder')) {
             Tool::showMessage('下载失败，请检查路径或稍后重试', false);
 
             return view(config('olaindex.theme') . 'message');
@@ -389,7 +390,7 @@ class IndexController extends Controller
             return view(config('olaindex.theme') . 'message');
         }
         $file = $this->getFileOrCache($realPath);
-        if (is_null($file) || array_has($file, 'folder')) {
+        if (is_null($file) || Arr::has($file, 'folder')) {
             Tool::showMessage('获取失败，请检查路径或稍后重试', false);
 
             return view(config('olaindex.theme') . 'message');
@@ -414,14 +415,15 @@ class IndexController extends Controller
 
             return view(config('olaindex.theme') . 'message');
         }
+
         if ($keywords) {
             $path = Tool::getEncodeUrl($this->root);
             $response = OneDrive::search($path, $keywords);
             if ($response['errno'] === 0) {
                 // 过滤结果中的文件夹\过滤微软OneNote文件
-                $items = array_where($response['data'], function ($value) {
-                    return !array_has($value, 'folder')
-                        && !array_has($value, 'package.type');
+                $items = Arr::where($response['data'], function ($value) {
+                    return !Arr::has($value, 'folder')
+                        && !Arr::has($value, 'package.type');
                 });
             } else {
                 Tool::showMessage('搜索失败', true);
@@ -444,16 +446,17 @@ class IndexController extends Controller
     public function searchShow($id)
     {
         $response = OneDrive::itemIdToPath($id, Tool::config('root'));
-        if ($response['errno'] === 0) {
-            $originPath = $response['data']['path'];
-            if (trim($this->root, '/') != '') {
-                $path = str_after($originPath, $this->root);
-            } else {
-                $path = $originPath;
-            }
-        } else {
+
+        if ($response['errno'] !== 0) {
             Tool::showMessage('获取连接失败', false);
-            $path = '/';
+            return redirect()->route('show', '/');
+        }
+
+        $originPath = $response['data']['path'];
+        $path = $originPath;
+
+        if (trim($this->root, '/') != '') {
+            $path = Str::after($originPath, $this->root);
         }
 
         return redirect()->route('show', $path);
@@ -469,9 +472,9 @@ class IndexController extends Controller
         $realPath = decrypt(request()->get('realPath'));
         $encryptKey = decrypt(request()->get('encryptKey'));
         $data = [
-            'password' => encrypt($password),
+            'password'   => encrypt($password),
             'encryptKey' => $encryptKey,
-            'expires' => time() + (int)$this->expires * 60, // 目录密码过期时间
+            'expires'    => time() + (int)$this->expires * 60, // 目录密码过期时间
         ];
         Session::put('password:' . $encryptKey, $data);
         $arr = Tool::handleEncryptDir(Tool::config('encrypt_path'));
