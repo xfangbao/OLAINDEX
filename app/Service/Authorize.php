@@ -8,14 +8,16 @@ use App\Entities\ClientConfigEntity;
 use App\Utils\CoreConstants;
 use Curl\Curl;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use ErrorException;
 
 class Authorize
 {
     /**
      * @var $instance
      */
-    private static $instance;
+    private static $instances = [];
 
 
     private $account_type;
@@ -24,12 +26,12 @@ class Authorize
      * @param $account_type
      * @return Authorize
      */
-    public static function getInstance($account_type)
+    public static function getInstance($account_type): Authorize
     {
-        if (!(self::$instance instanceof self)) {
-            self::$instance = new self($account_type);
+        if (!array_key_exists($account_type, self::$instances)) {
+            self::$instances[$account_type] = new self($account_type);
         }
-        return self::$instance;
+        return self::$instances[$account_type];
     }
 
     /**
@@ -42,13 +44,12 @@ class Authorize
     }
 
     /**
-     *  OneDrive 授权请求
-     *
+     * OneDrive 授权请求
      * @param $form_params
-     * @return \Illuminate\Support\Collection
-     * @throws \ErrorException
+     * @return Collection
+     * @throws ErrorException
      */
-    private function request($form_params)
+    private function request($form_params): Collection
     {
         $client_config = new ClientConfigEntity(CoreConstants::getClientConfig($this->account_type));
         $form_params = array_merge([
@@ -74,12 +75,10 @@ class Authorize
             ];
             Log::error('OneDrive Authorize Request Error.', $error);
             $message = $curl->errorCode . ': ' . $curl->errorMessage . "\n";
-            throw new \ErrorException($message);
+            throw new ErrorException($message);
 
         }
-        $token = collect($curl->response);
-        return $token;
-
+        return collect($curl->response);
     }
 
     /**
@@ -88,7 +87,7 @@ class Authorize
      * @param $state
      * @return string
      */
-    public function getAuthorizeUrl($state = '')
+    public function getAuthorizeUrl($state = ''): string
     {
         $client_config = new ClientConfigEntity(CoreConstants::getClientConfig($this->account_type));
 
@@ -109,10 +108,10 @@ class Authorize
     /**
      * 请求获取access_token
      * @param $code
-     * @return \Illuminate\Support\Collection
-     * @throws \ErrorException
+     * @return Collection
+     * @throws ErrorException
      */
-    public function getAccessToken($code)
+    public function getAccessToken($code): Collection
     {
         $form_params = [
             'code' => $code,
@@ -124,10 +123,10 @@ class Authorize
     /**
      * 请求刷新access_token
      * @param $existingRefreshToken
-     * @return \Illuminate\Support\Collection
-     * @throws \ErrorException
+     * @return Collection
+     * @throws ErrorException
      */
-    public function refreshAccessToken($existingRefreshToken)
+    public function refreshAccessToken($existingRefreshToken): Collection
     {
         $form_params = [
             'refresh_token' => $existingRefreshToken,
@@ -142,12 +141,4 @@ class Authorize
     private function __clone()
     {
     }
-
-    /**
-     * 防止反序列化（这将创建它的副本）
-     */
-    private function __wakeup()
-    {
-    }
-
 }

@@ -5,9 +5,14 @@ namespace App\Service;
 use App\Utils\CoreConstants;
 use Curl\Curl;
 use Illuminate\Support\Arr;
+use ErrorException;
 
 class GraphRequest
 {
+    /**
+     * @var $accessToken
+     */
+    protected $accessToken;
 
     /**
      * @var $baseUrl
@@ -25,26 +30,18 @@ class GraphRequest
      * @var string
      */
     protected $endpoint;
-
     /**
      * An array of headers to send with the request
      *
      * @var array(string => string)
      */
     protected $headers;
-
-    /**
-     * @var $accessToken
-     */
-    protected $accessToken;
-
     /**
      * The body of the request (optional)
      *
      * @var string
      */
     protected $requestBody;
-
     /**
      * The type of request to make ("GET", "POST", etc.)
      *
@@ -62,37 +59,41 @@ class GraphRequest
     /**
      * @var $response
      */
-    protected $response = null;
+    protected $response;
 
     /**
      * @var $responseHeaders
      */
-    protected $responseHeaders = null;
+    protected $responseHeaders;
 
     /**
      * @var $responseError
      */
-    protected $responseError = null;
+    protected $responseError;
+
+
+    public $error = false;
+
 
     /**
      * 构造 microsoft graph 请求
      * @param      $method
-     * @param      $params
+     * @param      $param
      * @param null $token
      *
      * @return $this
-     * @throws \ErrorException
+     * @throws ErrorException
      */
-    public function request($method, $params, $token = null)
+    public function request($method, $param, $token = null): self
     {
-        if (is_array($params)) {
-            @list($endpoint, $requestBody, $requestHeaders, $timeout) = $params;
+        if (is_array($param)) {
+            @list($endpoint, $requestBody, $requestHeaders, $timeout) = $param;
             $this->requestBody = $requestBody ?? '';
             $this->headers = $requestHeaders ?? [];
             $this->timeout = $timeout ?? CoreConstants::DEFAULT_TIMEOUT;
             $this->endpoint = $endpoint;
         } else {
-            $this->endpoint = $params;
+            $this->endpoint = $param;
             $this->headers = [];
             $this->timeout = CoreConstants::DEFAULT_TIMEOUT;
         }
@@ -101,14 +102,14 @@ class GraphRequest
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->accessToken,
             ], $this->headers);
-            if (stripos($this->endpoint, "http") !== 0) {
+            if (stripos($this->endpoint, 'http') !== 0) {
                 $this->endpoint = $this->apiVersion . $this->endpoint;
             }
         }
         $this->requestType = strtoupper($method);
         $options = [
             CURLOPT_CUSTOMREQUEST => $this->requestType,
-            //            CURLOPT_HEADER => true,
+//            CURLOPT_HEADER => true,
             CURLOPT_AUTOREFERER => true,
             CURLOPT_FAILONERROR => true,
             CURLOPT_FOLLOWLOCATION => false,
@@ -138,24 +139,22 @@ class GraphRequest
         $curl->close();
         if ($curl->error) {
             \Log::error(
-                'OneDrive Source Request Error.',
+                'Get OneDrive source content error.',
                 [
                     'errno' => $curl->errorCode,
-                    'msg' => $curl->errorMessage,
+                    'message' => $curl->errorMessage,
                 ]
             );
             $this->responseError = collect([
                 'errno' => $curl->errorCode,
                 'msg' => $curl->errorMessage,
             ])->toJson();
-
-            return $this;
-        } else {
-            $this->responseHeaders = collect($curl->responseHeaders)->toJson();
-            $this->response = collect($curl->response)->toJson();
-
-            return $this;
+            $this->error = true;
         }
+        $this->responseHeaders = collect($curl->responseHeaders)->toJson();
+        $this->response = collect($curl->response)->toJson();
+
+        return $this;
     }
 
     /**
@@ -163,7 +162,7 @@ class GraphRequest
      *
      * @return $this
      */
-    public function setAccessToken($accessToken)
+    public function setAccessToken($accessToken): self
     {
         $this->accessToken = $accessToken;
         $this->headers['Authorization'] = 'Bearer ' . $this->accessToken;
@@ -176,7 +175,7 @@ class GraphRequest
      *
      * @return $this
      */
-    public function setBaseUrl($baseUrl)
+    public function setBaseUrl($baseUrl): self
     {
         $this->baseUrl = $baseUrl;
 
@@ -188,7 +187,7 @@ class GraphRequest
      *
      * @return $this
      */
-    public function setApiVersion($version)
+    public function setApiVersion($version): self
     {
         $this->apiVersion = $version;
 

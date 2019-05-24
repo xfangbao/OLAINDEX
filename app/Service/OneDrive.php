@@ -3,8 +3,9 @@
 namespace App\Service;
 
 use App\Entities\ClientConfigEntity;
-use App\models\OauthAccount;
+use App\models\Account;
 use App\Utils\CoreConstants;
+use ErrorException;
 use Illuminate\Support\Arr;
 
 class OneDrive
@@ -12,45 +13,45 @@ class OneDrive
     /**
      * @var $instance
      */
-    private static $instance;
+    private static $instances = [];
 
-    /**
-     * @var OauthAccount $account
-     */
+
+    /* @var Account $account */
     private $account;
 
-    /**
-     * @var GraphRequest $graph
-     */
+
+    /* @var GraphRequest $graph */
     private $graph;
 
+
     /**
-     * @param OauthAccount $account
+     * @param Account $account
      * @return OneDrive
      */
-    public static function getInstance(OauthAccount $account)
+    public static function getInstance(Account $account): OneDrive
     {
-        if (!(self::$instance instanceof self)) {
-            self::$instance = new self($account);
+        $account_id = $account->id;
+        if (!array_key_exists($account_id, self::$instances)) {
+            self::$instances[$account_id] = new self($account);
         }
-        return self::$instance;
+        return self::$instances[$account_id];
     }
 
     /**
      * OneDrive constructor.
-     * @param OauthAccount $account
+     * @param Account $account
      */
     private function __construct($account)
     {
-        $this->account = $account;
         $this->initRequest($account);
     }
 
     /**
-     * @param OauthAccount $account
+     * @param Account $account
      */
-    private function initRequest($account)
+    private function initRequest($account): void
     {
+        $this->account = $account;
         $accountType = $account->account_type;
         $clientConfig = new ClientConfigEntity(CoreConstants::getClientConfig($accountType));
         $baseUrl = $clientConfig->graph_endpoint;
@@ -73,43 +74,41 @@ class OneDrive
     public function request($method, $param, $token = null)
     {
         $response = $this->graph->request($method, $param, $token);
-        if (is_null($response->getResponseError())) {
-            $headers = json_decode($response->getResponseHeaders(), true);
-            $response = json_decode($response->getResponse(), true);
-            return [
-                'errno' => 0,
-                'message' => 'OK',
-                'headers' => $headers,
-                'data' => $response,
-            ];
-        } else {
+        if ($response->error) {
             return json_decode($response->getResponseError(), true);
         }
+        $headers = json_decode($response->getResponseHeaders(), true);
+        $response = json_decode($response->getResponse(), true);
+
+        return [
+            'errno' => 0,
+            'message' => 'OK',
+            'headers' => $headers,
+            'data' => $response,
+        ];
     }
 
     /**
      * 获取账户信息
      *
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function getAccountInfo()
     {
         $endpoint = '/me';
-        $response = $this->request('get', $endpoint);
-        return $response;
+        return $this->request('get', $endpoint);
     }
 
     /**
      * 获取网盘信息
      *
      * @return mixed
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function getDriveInfo()
     {
         $endpoint = '/me/drive';
-        $response = $this->request('get', $endpoint);
-        return $response;
+        return $this->request('get', $endpoint);
     }
 
     /**
@@ -119,7 +118,7 @@ class OneDrive
      * @param string $query
      *
      * @return array|mixed
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function getItemList($itemId = '', $query = '')
     {
@@ -131,9 +130,8 @@ class OneDrive
             $data = $this->getNextLinkList($response_data);
             $format = $this->formatItem($data);
             return $this->response($format);
-        } else {
-            return $response;
         }
+        return $response;
     }
 
     /**
@@ -143,7 +141,7 @@ class OneDrive
      * @param string $query
      *
      * @return array|mixed
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function getItemListByPath($path = '/', $query = '')
     {
@@ -156,9 +154,8 @@ class OneDrive
             $data = $this->getNextLinkList($response_data);
             $format = $this->formatItem($data);
             return $this->response($format);
-        } else {
-            return $response;
         }
+        return $response;
     }
 
     /**
@@ -168,9 +165,9 @@ class OneDrive
      * @param array $result
      *
      * @return array
-     * @throws \ErrorException
+     * @throws ErrorException
      */
-    public function getNextLinkList($list, &$result = [])
+    public function getNextLinkList($list, &$result = []): array
     {
         if (Arr::has($list, '@odata.nextLink')) {
             $baseLength = strlen($this->graph->getBaseUrl()) + strlen($this->graph->getApiVersion());
@@ -198,7 +195,7 @@ class OneDrive
      * @param string $query
      *
      * @return array|mixed
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function getItem($itemId, $query = '')
     {
@@ -208,9 +205,8 @@ class OneDrive
             $data = Arr::get($response, 'data');
             $format = $this->formatItem($data, false);
             return $this->response($format);
-        } else {
-            return $response;
         }
+        return $response;
     }
 
     /**
@@ -220,7 +216,7 @@ class OneDrive
      * @param string $query
      *
      * @return array|mixed
-     * @throws \ErrorException
+     * @throws ErrorException
      */
     public function getItemByPath($path, $query = '')
     {
@@ -231,9 +227,116 @@ class OneDrive
             $data = Arr::get($response, 'data');
             $format = $this->formatItem($data, false);
             return $this->response($format);
-        } else {
-            return $response;
         }
+        return $response;
+    }
+
+    /**
+     * 上传文件
+     * @param $id
+     * @param $content
+     *
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function upload($id, $content)
+    {
+        $endpoint = "/me/drive/items/{$id}/content";
+        $body = $content;
+        return $this->request('put', [$endpoint, $body]);
+    }
+
+    /**
+     * 上传文件到指定路径
+     * @param $path
+     * @param $content
+     *
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function uploadByPath($path, $content)
+    {
+        $requestPath = $this->getRequestPath($path);
+        $endpoint = "/me/drive/root{$requestPath}content";
+        $body = $content;
+        return $this->request('put', [$endpoint, $body]);
+    }
+
+    /**
+     * 创建分片上传
+     * @param $remote
+     *
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function createUploadSession($remote)
+    {
+        $graphPath = $this->getRequestPath($remote);
+        $endpoint = "/me/drive/root{$graphPath}createUploadSession";
+        $body = json_encode([
+            'item' => [
+                '@microsoft.graph.conflictBehavior' => 'fail',
+            ],
+        ]);
+        return $this->request('post', [$endpoint, $body]);
+    }
+
+    /**
+     * 上传分片
+     * @param     $url
+     * @param     $file
+     * @param     $offset
+     * @param int $length
+     *
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function uploadToSession(
+        $url,
+        $file,
+        $offset,
+        $length = 5242880
+    )
+    {
+        $file_size = $this->readFileSize($file);
+        $content_length = (($offset + $length) > $file_size) ? ($file_size
+            - $offset) : $length;
+        $end = (($offset + $length) > $file_size) ? ($file_size - 1)
+            : $offset + $content_length - 1;
+        $content = $this->readFileContent($file, $offset, $length);
+        $headers = [
+            'Content-Length' => $content_length,
+            'Content-Range' => "bytes {$offset}-{$end}/{$file_size}",
+        ];
+        $requestBody = $content;
+        $response = $this->request(
+            'put',
+            [$url, $requestBody, $headers, 360]
+        );
+        return $response;
+    }
+
+    /**
+     * 获取分片上传状态
+     * @param $url
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function uploadSessionStatus($url)
+    {
+        return $this->request('get', $url, false);
+    }
+
+    /**
+     * 删除分片上传session
+     *
+     * @param $url
+     * @return mixed
+     * @throws ErrorException
+     */
+    public function deleteUploadSession($url)
+    {
+        return $this->request('delete', $url, false);
     }
 
     /**
@@ -243,7 +346,7 @@ class OneDrive
      *
      * @return string
      */
-    public function encodeUrl($path)
+    public function encodeUrl($path): string
     {
         $url = [];
         foreach (explode('/', $path) as $key => $value) {
@@ -262,16 +365,16 @@ class OneDrive
      *
      * @return string
      */
-    public function getRequestPath($path, $isFile = false)
+    public function getRequestPath($path, $isFile = false): string
     {
-        $originPath = $this->getAbsolutePath($path);
-        $queryPath = trim($originPath, '/');
-        $queryPath = $this->encodeUrl(rawurldecode($queryPath));
-        $requestPath = empty($queryPath) ? '/' : ":/{$queryPath}:/";
+        $origin_path = $this->getAbsolutePath($path);
+        $query_path = trim($origin_path, '/');
+        $query_path = $this->encodeUrl(rawurldecode($query_path));
+        $request_path = empty($query_path) ? '/' : ":/{$query_path}:/";
         if ($isFile) {
-            return rtrim($requestPath, ':/');
+            return rtrim($request_path, ':/');
         }
-        return $requestPath;
+        return $request_path;
     }
 
     /**
@@ -307,7 +410,7 @@ class OneDrive
      *
      * @return array
      */
-    public function formatItem($response, $isList = true)
+    public function formatItem($response, $isList = true): array
     {
         if ($isList) {
             $items = [];
@@ -344,16 +447,66 @@ class OneDrive
     }
 
     /**
-     * 防止实例被克隆（这会创建实例的副本）
+     * Read File Size
+     *
+     * @param $path
+     *
+     * @return bool|int|string
      */
-    private function __clone()
+    public function readFileSize($path)
     {
+        if (!file_exists($path)) {
+            return false;
+        }
+        $size = filesize($path);
+        if (!($file = fopen($path, 'rb'))) {
+            return false;
+        }
+        if ($size >= 0) { //Check if it really is a small file (< 2 GB)
+            if (fseek($file, 0, SEEK_END) === 0) { //It really is a small file
+                fclose($file);
+                return $size;
+            }
+        }
+        //Quickly jump the first 2 GB with fseek. After that fseek is not working on 32 bit php (it uses int internally)
+        $size = PHP_INT_MAX - 1;
+        if (fseek($file, PHP_INT_MAX - 1) !== 0) {
+            fclose($file);
+            return false;
+        }
+        $length = 1024 * 1024;
+        $read = '';
+        while (!feof($file)) { //Read the file until end
+            $read = fread($file, $length);
+            $size = bcadd($size, $length);
+        }
+        $size = bcsub($size, $length);
+        $size = bcadd($size, strlen($read));
+        fclose($file);
+        return $size;
     }
 
     /**
-     * 防止反序列化（这将创建它的副本）
+     * Read File Content
+     *
+     * @param $file
+     * @param $offset
+     * @param $length
+     *
+     * @return bool|string
      */
-    private function __wakeup()
+    public function readFileContent($file, $offset, $length)
+    {
+        $handler = fopen($file, 'rb') ?? die('Failed Get Content');
+        fseek($handler, $offset);
+        return fread($handler, $length);
+    }
+
+
+    /**
+     * 防止实例被克隆（这会创建实例的副本）
+     */
+    private function __clone()
     {
     }
 }

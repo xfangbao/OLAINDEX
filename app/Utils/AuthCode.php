@@ -8,7 +8,7 @@ class AuthCode
 {
     const KEY = 'GTG7eK7Enwad0701bM1JtlBPkySYyldl';
 
-    const EXPIRY = 172800;
+    const EXPIRE = 172800;
 
     /**
      * 加密
@@ -17,7 +17,7 @@ class AuthCode
      * @param int $expire
      * @return bool|string
      */
-    public static function encrypt($str, $key, $expire = self::EXPIRY)
+    public static function encrypt($str, $key, $expire = self::EXPIRE)
     {
         return self::authCode($str, 'ENCODE', $key, $expire);
     }
@@ -29,7 +29,7 @@ class AuthCode
      * @param int $expire
      * @return bool|string
      */
-    public static function decrypt($str, $key, $expire = self::EXPIRY)
+    public static function decrypt($str, $key, $expire = self::EXPIRE)
     {
         return self::authCode($str, 'DECODE', $key, $expire);
     }
@@ -39,10 +39,10 @@ class AuthCode
      * @param $string
      * @param string $operation
      * @param string $key
-     * @param int $expiry
+     * @param int $EXPIRE
      * @return bool|string
      */
-    public static function authCode($string, $operation = 'DECODE', $key = '', $expiry = 0)
+    public static function authCode($string, $operation = 'DECODE', $key = '', $EXPIRE = 0)
     {
 
         $ckey_length = 4;
@@ -50,12 +50,16 @@ class AuthCode
         $key = md5($key);
         $keya = md5(substr($key, 0, 16));
         $keyb = md5(substr($key, 16, 16));
-        $keyc = $ckey_length ? ($operation == 'DECODE' ? substr($string, 0, $ckey_length) : substr(md5(microtime()), -$ckey_length)) : '';
+        $keyc = $ckey_length ?
+            ($operation === 'DECODE' ? substr($string, 0, $ckey_length) : substr(md5(microtime()), -$ckey_length))
+            : '';
 
         $cryptkey = $keya . md5($keya . $keyc);
         $key_length = strlen($cryptkey);
 
-        $string = $operation == 'DECODE' ? base64_decode(substr($string, $ckey_length)) : sprintf('%010d', $expiry ? $expiry + time() : 0) . substr(md5($string . $keyb), 0, 16) . $string;
+        $string = $operation === 'DECODE'
+            ? base64_decode(substr($string, $ckey_length))
+            : sprintf('%010d', $EXPIRE ? $EXPIRE + time() : 0) . substr(md5($string . $keyb), 0, 16) . $string;
         $string_length = strlen($string);
 
         $result = '';
@@ -82,7 +86,7 @@ class AuthCode
             $result .= chr(ord($string[$i]) ^ ($box[($box[$a] + $box[$j]) % 256]));
         }
 
-        if ($operation == 'DECODE') {
+        if ($operation === 'DECODE') {
             if ((substr($result, 0, 10) == 0 || substr($result, 0, 10) - time() > 0) && substr($result, 10, 16) == substr(md5(substr($result, 26) . $keyb), 0, 16)) {
                 return substr($result, 26);
             } else {

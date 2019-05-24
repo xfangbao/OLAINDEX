@@ -14,3 +14,4 @@ yarn-error.log
 _ide_helper.php
 .phpstorm.meta.php
 .phplint-cache
+.php_cs.cache

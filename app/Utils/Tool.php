@@ -44,30 +44,6 @@ class Tool
         return $html;
     }
 
-    /**
-     * 字符串截取，支持中文和其他编码
-     *
-     * @param string $str 需要转换的字符串
-     * @param integer $start 开始位置
-     * @param string $length 截取长度
-     * @param boolean $suffix 截断显示字符
-     * @param string $charset 编码格式
-     *
-     * @return string
-     */
-    public static function subStr(
-        $str,
-        $start,
-        $length,
-        $suffix = true,
-        $charset = "utf-8"
-    )
-    {
-        $slice = mb_substr($str, $start, $length, $charset);
-        $omit = mb_strlen($str) >= $length ? '...' : '';
-
-        return $suffix ? $slice . $omit : $slice;
-    }
 
     /**
      * 数组分页
@@ -175,7 +151,7 @@ class Tool
      */
     public static function readFileContent($file, $offset, $length)
     {
-        $handler = fopen($file, "rb") ?? die('Failed Get Content');
+        $handler = fopen($file, 'rb') ?? die('Failed Get Content');
         fseek($handler, $offset);
 
         return fread($handler, $length);
@@ -237,58 +213,32 @@ class Tool
         $cTime = time();
         $dTime = $cTime - $sTime;
         // 计算两个时间之间的日期差
-        $date1 = date_create(date("Y-m-d", $cTime));
-        $date2 = date_create(date("Y-m-d", $sTime));
+        $date1 = date_create(date('Y-m-d', $cTime));
+        $date2 = date_create(date('Y-m-d', $sTime));
         $diff = date_diff($date1, $date2);
         $dDay = $diff->days;
 
         if ($dTime == 0) {
-            return "1秒前";
+            return '1秒前';
         } elseif ($dTime < 60 && $dTime > 0) {
-            return $dTime . "秒前";
+            return $dTime . '秒前';
         } elseif ($dTime < 3600 && $dTime > 0) {
-            return intval($dTime / 60) . "分钟前";
+            return (int)($dTime / 60) . '分钟前';
         } elseif ($dTime >= 3600 && $dDay == 0) {
-            return intval($dTime / 3600) . "小时前";
+            return (int)($dTime / 3600) . '小时前';
         } elseif ($dDay == 1) {
-            return date("昨天 H:i", $sTime);
+            return date('昨天 H:i', $sTime);
         } elseif ($dDay == 2) {
-            return date("前天 H:i", $sTime);
+            return date('前天 H:i', $sTime);
         } elseif ($format == 1) {
-            return date("m-d H:i", $sTime);
+            return date('m-d H:i', $sTime);
         } else {
-            if (date('Y', $cTime) != date('Y', $sTime)) // 不是今年
-                return date("Y-n-j", $sTime);
-            else
-                return date("n-j", $sTime);
+            // 不是今年
+            if (date('Y', $cTime) != date('Y', $sTime)) {
+                return date('Y-n-j', $sTime);
+            }
+            return date('n-j', $sTime);
         }
     }
 
-    /**
-     * 导出csv数据
-     * @param string $title 标题
-     * @param array $header 头信息
-     * @param array $data 数据
-     */
-    public static function cvs_write_browser($title, $header = [], $data = [])
-    {
-        $str = '';
-        array_unshift($data, $header);
-        foreach ($data as $key => $val) {
-            foreach ($val as $kkey => $vval) {
-                str_replace(array("\t", "\n"), ';', $vval);
-                $str .= '"' . mb_convert_encoding($vval, 'gbk', 'utf-8') . '",';
-            }
-            $str .= "\n";
-        }
-        header('Content-Description: File Transfer');
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment;filename = ' . $title . '.csv');
-        header('Content-Transfer-Encoding: binary');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate, post-check = 0, pre-check = 0');
-        header('Pragma: no-cache');
-        echo $str;
-        exit();
-    }
 }
