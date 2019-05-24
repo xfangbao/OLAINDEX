@@ -32,5 +32,11 @@ class Test extends Command
 
     public function handle()
     {
+        \DB::table('users')->insert([
+            'name' => 'wangningkai',
+            'email' => '1655586865@qq.com',
+            'password' => bcrypt('123456'),
+            'status' => 1
+        ]);
     }
 }

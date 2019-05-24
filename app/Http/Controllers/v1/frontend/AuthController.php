@@ -11,6 +11,10 @@ use App\Transformers\UserTransformer;
 use App\Utils\ResponseSerializer;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Validator;
+use Exception;
 
 class AuthController extends BaseController
 {
@@ -30,11 +34,11 @@ class AuthController extends BaseController
      *
      * @param Request $request
      * @return \Dingo\Api\Http\Response|mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function login(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'email' => 'required|email|exists:users',
             'password' => 'required',
         ]);
@@ -43,12 +47,12 @@ class AuthController extends BaseController
         }
         $credentials = $request->only('email', 'password');
 
-        if (!$token = \Auth::guard('api')->attempt($credentials)) {
+        if (!$token = Auth::guard('api')->attempt($credentials)) {
             return $this->response->errorBadRequest(trans('auth.failed'));
         }
 
         $authorization = new Authorization($token);
-        \Event::dispatch(new Login('api', $authorization->user(), false));
+        Event::dispatch(new Login('api', $authorization->user(), false));
 
         return $this->response->item($authorization, new AuthorizationTransformer(), function ($resource, $fractal) {
             $fractal->setSerializer(new ResponseSerializer());
@@ -62,7 +66,7 @@ class AuthController extends BaseController
      */
     public function logout()
     {
-        \Auth::guard('api')->logout();
+        Auth::guard('api')->logout();
 
         return $this->returnData(['state' => 'success']);
     }
@@ -75,7 +79,7 @@ class AuthController extends BaseController
      */
     public function user()
     {
-        $user = \Auth::guard('api')->user();
+        $user = Auth::guard('api')->user();
 
         return $this->response()->item($user, new UserTransformer(), function ($resource, $fractal) {
             /* @var $fractal */
@@ -90,7 +94,7 @@ class AuthController extends BaseController
      */
     public function refresh()
     {
-        $authorization = new Authorization(\Auth::refresh());
+        $authorization = new Authorization(Auth::refresh());
         return $this->response->item($authorization, new AuthorizationTransformer(), function ($resource, $fractal) {
             $fractal->setSerializer(new ResponseSerializer());
         });
