@@ -35,9 +35,31 @@ $api->version(
                 $api->get('auth/user', 'AuthController@user');
 
                 // 授权
-                $api->get('onedrive/authorize/{account_type}', 'OneDriveController@authorizeLogin');
-                $api->post('onedrive/callback', 'OneDriveController@callback');
-                $api->post('onedrive/unbind', 'OneDriveController@unbind');
+                $api->get('drive/authorize/{account_type}', 'OneDriveController@authorizeLogin');
+                $api->post('drive/callback', 'OneDriveController@callback');
+                $api->post('drive/unbind', 'OneDriveController@unbind');
+            }
+        );
+        // 后台
+        $api->group(
+            [
+                'namespace' => 'App\Http\Controllers\v1\backend',
+//            'middleware' => 'api.throttle',
+//            'limit' => 200, 'expires' => 1
+            ],
+            function ($api) {
+                /* @var $api Dingo\Api\Routing\Router */
+                // 资源
+                $resource = ['user', 'setting'];
+                foreach ($resource as $value) {
+                    $content = Str::plural($value);
+                    $controller = Str::studly($value) . 'Controller';
+                    $api->get($content, "{$controller}@index");
+                    $api->post($content, "{$controller}@create");
+                    $api->get("{$content}/{id}", "{$controller}@view");
+                    $api->put("{$content}/{id}", "{$controller}@update");
+                    $api->delete("{$content}/{id}", "{$controller}@delete");
+                }
             }
         );
     }

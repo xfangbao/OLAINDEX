@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Str;
 
 class Test extends Command
 {
@@ -32,6 +33,7 @@ class Test extends Command
 
     public function handle()
     {
+        dd(Str::plural('setting'));
         \DB::table('users')->insert([
             'name' => 'wangningkai',
             'email' => '1655586865@qq.com',

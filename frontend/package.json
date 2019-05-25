@@ -5,18 +5,20 @@
     "scripts": {
         "serve": "vue-cli-service serve",
         "build": "vue-cli-service build",
-        "lint": "vue-cli-service lint",
-        "build-laravel": "rm -rf ../public/{js,css,img} && vue-cli-service build --no-clean"
+        "build:laravel": "rm -rf ../public/{js,css,img} && vue-cli-service build --no-clean",
+        "lint": "vue-cli-service lint"
     },
     "dependencies": {
         "axios": "^0.18.0",
+        "core-js": "^2.6.5",
         "js-cookie": "^2.2.0",
         "nprogress": "^0.2.0",
         "store": "^2.0.12",
         "vee-validate": "^2.2.0",
-        "core-js": "^2.6.5",
         "vue": "^2.6.10",
+        "vue-perfect-scrollbar": "^0.1.0",
         "vue-router": "^3.0.3",
+        "vuetify": "^1.5.5",
         "vuex": "^3.0.1"
     },
     "devDependencies": {
@@ -34,6 +36,8 @@
         "prettier": "^1.17.0",
         "stylus": "^0.54.5",
         "stylus-loader": "^3.0.1",
-        "vue-template-compiler": "^2.5.21"
+        "vue-cli-plugin-vuetify": "^0.5.0",
+        "vue-template-compiler": "^2.5.21",
+        "vuetify-loader": "^1.0.5"
     }
 }
