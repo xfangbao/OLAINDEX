@@ -6,7 +6,7 @@
 
 				<v-content>
 					<!-- header -->
-					<app-header></app-header>
+					<!-- <app-header></app-header> -->
 					<!-- content -->
 					<app-content></app-content>
 					<!-- footer -->
@@ -27,14 +27,14 @@
 </template>
 <script>
 import AppToolbar from './layout/AppToolbar'
-import AppHeader from './layout/AppHeader'
+// import AppHeader from './layout/AppHeader'
 import AppFooter from './layout/AppToolbar'
 import AppContent from './layout/AppContent'
 import AppFab from '@/components/widgets/AppFab'
 export default {
 	name: 'app-main',
 	data: () => ({}),
-	components: { AppToolbar, AppHeader, AppFooter, AppContent, AppFab },
+	components: { AppToolbar, /*AppHeader,*/ AppFooter, AppContent, AppFab },
 	methods: {},
 }
 </script>

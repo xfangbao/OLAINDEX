@@ -50,7 +50,7 @@ $api->version(
             function ($api) {
                 /* @var $api Dingo\Api\Routing\Router */
                 // 资源
-                $resource = ['user', 'setting'];
+                $resource = ['user'];
                 foreach ($resource as $value) {
                     $content = Str::plural($value);
                     $controller = Str::studly($value) . 'Controller';
@@ -60,6 +60,8 @@ $api->version(
                     $api->put("{$content}/{id}", "{$controller}@update");
                     $api->delete("{$content}/{id}", "{$controller}@delete");
                 }
+                $api->get('settings', 'SettingController@index');
+                $api->put('settings', 'SettingController@update');
             }
         );
     }
