@@ -1,75 +1,82 @@
 <?php
+/**
+ * This file is part of the wangningkai/OLAINDEX.
+ * (c) wangningkai <i@ningkai.wang>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
 
 namespace App\Service;
 
-use App\Entities\ClientConfigEntity;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
+use App\Models\Client;
 use ErrorException;
 
-/**
- * Class OneDrive
- * @package App\Service
- */
 class OneDrive
 {
     /**
-     * @var $instance
+     * @var OneDrive
      */
-    private static $instances = [];
-
-    /* @var GraphRequest $graph */
-    private $graph;
+    private static $instance;
 
     /**
-     * @param $account
+     * @var $account
+     */
+    private $account;
+
+    /**
+     * @var RequestService $service
+     */
+    private $service;
+
+    /**
      * @return OneDrive
      */
-    public static function getInstance($account): OneDrive
+    public static function init(): OneDrive
     {
-        $account_id = md5(serialize($account));
-        if (!array_key_exists($account_id, self::$instances)) {
-            self::$instances[$account_id] = new self($account);
+        if (!(self::$instance instanceof self)) {
+            self::$instance = new self();
         }
-        return self::$instances[$account_id];
+        return self::$instance;
     }
 
     /**
-     * OneDrive constructor.
-     * @param $account
+     * AuthorizeService constructor.
      */
-    private function __construct($account)
+    private function __construct()
     {
-        $this->initRequest($account);
     }
 
     /**
+     * 初始化请求参数
      * @param $account
+     * @return $this
      */
-    private function initRequest($account): void
+    public function bind($account): OneDrive
     {
-        $accountType = Arr::get($account, 'account_type', 'com');
-        $clientConfig = new ClientConfigEntity(CoreConstants::getClientConfig($accountType));
-        $baseUrl = $clientConfig->graph_endpoint;
-        $apiVersion = $clientConfig->api_version;
-        $accessToken = Arr::get($account, 'access_token', '');
-        $this->graph = (new GraphRequest())
-            ->setAccessToken($accessToken)
-            ->setBaseUrl($baseUrl)
-            ->setApiVersion($apiVersion);
+        $this->account = $account;
+        $client = new Client(Client::setClientConfig($this->account));
+        $base_url = $client->graph_endpoint;
+        $api_version = $client->api_version;
+        $access_token = array_get($account, 'access_token');
+        $this->service = (new RequestService())
+            ->setAccessToken($access_token)
+            ->setBaseUrl($base_url)
+            ->setApiVersion($api_version);
+        return $this;
     }
 
     /**
-     * @param      $method
-     * @param      $param
-     * @param null $token
-     *
-     * @return mixed
+     * 发送请求
+     * @param $method
+     * @param $param
+     * @param bool $needToken
+     * @param string $attachBody
+     * @return array|mixed
      * @throws ErrorException
      */
-    public function request($method, $param, $token = null)
+    public function request($method, $param, $needToken = true, $attachBody = '')
     {
-        $response = $this->graph->request($method, $param, $token);
+        $response = $this->service->request($method, $param, $needToken, $attachBody);
         if ($response->error) {
             return json_decode($response->getResponseError(), true);
         }
@@ -86,7 +93,7 @@ class OneDrive
 
     /**
      * 获取账户信息
-     *
+     * @return array|mixed
      * @throws ErrorException
      */
     public function getAccountInfo()
@@ -97,8 +104,7 @@ class OneDrive
 
     /**
      * 获取网盘信息
-     *
-     * @return mixed
+     * @return array|mixed
      * @throws ErrorException
      */
     public function getDriveInfo()
@@ -109,10 +115,8 @@ class OneDrive
 
     /**
      * 获取网盘资源目录列表
-     *
      * @param string $itemId
      * @param string $query
-     *
      * @return array|mixed
      * @throws ErrorException
      */
@@ -122,7 +126,7 @@ class OneDrive
             : "/me/drive/root/children{$query}";
         $response = $this->request('get', $endpoint);
         if ($response['errno'] === 0) {
-            $response_data = Arr::get($response, 'data');
+            $response_data = array_get($response, 'data');
             $data = $this->getNextLinkList($response_data);
             $format = $this->formatItem($data);
             return $this->response($format);
@@ -132,10 +136,8 @@ class OneDrive
 
     /**
      * 通过路径获取网盘资源目录列表
-     *
      * @param string $path
      * @param string $query
-     *
      * @return array|mixed
      * @throws ErrorException
      */
@@ -146,7 +148,7 @@ class OneDrive
             : "/me/drive/root{$requestPath}children{$query}";
         $response = $this->request('get', $endpoint);
         if ($response['errno'] === 0) {
-            $response_data = Arr::get($response, 'data');
+            $response_data = array_get($response, 'data');
             $data = $this->getNextLinkList($response_data);
             $format = $this->formatItem($data);
             return $this->response($format);
@@ -156,17 +158,15 @@ class OneDrive
 
     /**
      * 获取下一页全部网盘资源目录
-     *
-     * @param       $list
+     * @param $list
      * @param array $result
-     *
      * @return array
      * @throws ErrorException
      */
     public function getNextLinkList($list, &$result = []): array
     {
-        if (Arr::has($list, '@odata.nextLink')) {
-            $baseLength = strlen($this->graph->getBaseUrl()) + strlen($this->graph->getApiVersion());
+        if (array_has($list, '@odata.nextLink')) {
+            $baseLength = strlen($this->service->getBaseUrl()) + strlen($this->service->getApiVersion());
             $endpoint = substr($list['@odata.nextLink'], $baseLength);
             $response = $this->request('get', $endpoint);
             if ($response['errno'] === 0) {
@@ -186,10 +186,8 @@ class OneDrive
 
     /**
      * 根据资源id获取网盘资源
-     *
-     * @param        $itemId
+     * @param $itemId
      * @param string $query
-     *
      * @return array|mixed
      * @throws ErrorException
      */
@@ -198,7 +196,7 @@ class OneDrive
         $endpoint = "/me/drive/items/{$itemId}{$query}";
         $response = $this->request('get', $endpoint);
         if ($response['errno'] === 0) {
-            $data = Arr::get($response, 'data');
+            $data = array_get($response, 'data');
             $format = $this->formatItem($data, false);
             return $this->response($format);
         }
@@ -207,10 +205,8 @@ class OneDrive
 
     /**
      * 通过路径获取网盘资源
-     *
-     * @param        $path
+     * @param $path
      * @param string $query
-     *
      * @return array|mixed
      * @throws ErrorException
      */
@@ -220,7 +216,7 @@ class OneDrive
         $endpoint = "/me/drive/root{$requestPath}{$query}";
         $response = $this->request('get', $endpoint);
         if ($response['errno'] === 0) {
-            $data = Arr::get($response, 'data');
+            $data = array_get($response, 'data');
             $format = $this->formatItem($data, false);
             return $this->response($format);
         }
@@ -228,366 +224,82 @@ class OneDrive
     }
 
     /**
-     * 复制资源
-     *
-     * @param $itemId
-     * @param $parentItemId
-     *
-     * @return mixed
-     * @throws ErrorException
-     */
-    public function copy($itemId, $parentItemId)
-    {
-        $driveResponse = $this->getDriveInfo();
-        if ($driveResponse['errno'] === 0) {
-            $driveId = Arr::get($driveResponse, 'data.id');
-            $endpoint = "/me/drive/items/{$itemId}/copy";
-            $body = json_encode([
-                'parentReference' => [
-                    'driveId' => $driveId,
-                    'id' => $parentItemId,
-                ],
-            ]);
-            $response = $this->request('post', [$endpoint, $body]);
-            if ($response['errno'] === 0) {
-                $data = [
-                    'redirect' => Arr::get($response, 'headers.Location'),
-                ];
-                return $this->response($data);
-            }
-            return $response;
-        }
-        return $driveResponse;
-    }
-
-    /**
-     * 移动资源
-     *
-     * @param $itemId
-     * @param $parentItemId
-     * @param string $itemName
-     * @return mixed
-     * @throws ErrorException
-     */
-    public function move($itemId, $parentItemId, $itemName = '')
-    {
-        $endpoint = "/me/drive/items/{$itemId}";
-        $content = [
-            'parentReference' => [
-                'id' => $parentItemId,
-            ],
-        ];
-        if ($itemName) {
-            $content = Arr::add($content, 'name', $itemName);
-        }
-        $body = json_encode($content);
-
-        return $this->request('patch', [$endpoint, $body]);
-    }
-
-    /**
-     * 新建目录
-     *
-     * @param $itemName
-     * @param $parentItemId
-     * @return mixed
-     * @throws ErrorException
-     */
-    public function mkdir($itemName, $parentItemId)
-    {
-        $endpoint = "/me/drive/items/$parentItemId/children";
-        $body = '{"name":"' . $itemName . '","folder":{},"@microsoft.graph.conflictBehavior":"rename"}';
-        return $this->request('post', [$endpoint, $body]);
-    }
-
-    /**
-     * 新建目录（路径）
-     *
-     * @param $itemName
-     * @param $path
-     *
-     * @return mixed
-     * @throws ErrorException
-     */
-    public function mkdirByPath($itemName, $path)
-    {
-        $requestPath = $this->getRequestPath($path);
-        $endpoint = $requestPath === '/' ? '/me/drive/root/children'
-            : "/me/drive/root{$requestPath}children";
-        $body = '{"name":"' . $itemName . '","folder":{},"@microsoft.graph.conflictBehavior":"rename"}';
-
-        return $this->request('post', [$endpoint, $body]);
-    }
-
-    /**
-     * 删除资源
-     *
-     * @param        $itemId
-     * @param string $eTag
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function delete($itemId, $eTag = '')
-    {
-        $endpoint = "/me/drive/items/{$itemId}";
-        $headers = $eTag ? ['if-match' => $eTag] : [];
-        $response = $this->request('delete', [$endpoint, '', $headers]);
-        if ($response['errno'] === 0) {
-            return $this->response(['deleted' => true]);
-        }
-        return $response;
-    }
-
-    /**
-     * 搜索资源
-     *
-     * @param $path
-     * @param $query
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function search($path, $query)
-    {
-        $requestPath = $this->getRequestPath($path);
-        $endpoint = $requestPath === '/'
-            ? "/me/drive/root/search(q='{$query}')"
-            : "/me/drive/root{$requestPath}search(q='{$query}')";
-        $response = $this->request('get', $endpoint);
-        if ($response['errno'] === 0) {
-            $response_data = Arr::get($response, 'data');
-            $data = $this->getNextLinkList($response_data);
-
-            $format = $this->formatItem($data);
-
-            return $this->response($format);
-        }
-        return $response;
-    }
-
-    /**
-     * 获取缩略图
-     *
-     * @param $itemId
-     * @param $size
-     *
-     * @return mixed
-     * @throws ErrorException
-     */
-    public function thumbnails($itemId, $size)
-    {
-        $endpoint = "/me/drive/items/{$itemId}/thumbnails/0/{$size}";
-        return $this->request('get', $endpoint);
-    }
-
-    /**
-     * 获取资源分享直链
-     *
-     * @param $itemId
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function createShareLink($itemId)
-    {
-        $endpoint = "/me/drive/items/{$itemId}/createLink";
-        $body = '{"type": "view","scope": "anonymous"}';
-        $response = $this->request('post', [$endpoint, $body]);
-
-        if ($response['errno'] === 0) {
-            $data = $response['data'];
-            $webUrl = Arr::get($data, 'link.webUrl');
-            if (Str::contains($webUrl, ['sharepoint.com', 'sharepoint.cn'])) {
-                $parse = parse_url($webUrl);
-                $domain = "{$parse['scheme']}://{$parse['host']}/";
-                $param = Str::after($parse['path'], 'personal/');
-                [$userInfo, $res_id] = explode('/', $param);
-                $directLink = $domain . 'personal/' . $userInfo . '/_layouts/15/download.aspx?share=' . $res_id;
-            } elseif (Str::contains($webUrl, '1drv.ms')) {
-                $rep = $this->request('get', $webUrl);
-                if ($rep['errno'] === 0) {
-                    $directLink = str_replace('redir?', 'download?', $rep['headers']['Location']);
-                } else {
-                    return $rep;
-                }
-            } else {
-                $directLink = '';
-            }
-            return $this->response([
-                'redirect' => $directLink,
-            ]);
-        }
-        return $response;
-    }
-
-
-    /**
-     * 删除资源分享直链
-     *
-     * @param $itemId
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function deleteShareLink($itemId)
-    {
-        $response = $this->getPermission($itemId);
-        if ($response['errno'] === 0) {
-            $data = $response['data'];
-            $permission = Arr::first($data, static function ($value) {
-                return $value['roles'][0] === 'read';
-            });
-            $permissionId = Arr::get($permission, 'id');
-
-            return $this->deletePermission($itemId, $permissionId);
-        }
-        return $response;
-    }
-
-
-    /**
-     * 获取资源权限
-     *
-     * @param $itemId
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function getPermission($itemId)
-    {
-        $endpoint = "/me/drive/items/{$itemId}/permissions";
-        $response = $this->request('get', $endpoint);
-        if ($response ['errno'] === 0) {
-            $data = $response ['data'];
-
-            return $this->response($data['value']);
-        }
-        return $response;
-    }
-
-    /**
-     * 删除资源权限
-     *
-     * @param $itemId
-     * @param $permissionId
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function deletePermission($itemId, $permissionId)
-    {
-        $endpoint = "/me/drive/items/{$itemId}/permissions/{$permissionId}";
-        $response = $this->request('delete', $endpoint);
-        if ($response['errno'] === 0) {
-            return $this->response(['deleted' => true]);
-        }
-        return $response;
-    }
-
-    /**
      * 上传文件
      * @param $id
-     * @param $content
-     *
-     * @return mixed
+     * @param $body
+     * @return array|mixed
      * @throws ErrorException
      */
-    public function upload($id, $content)
+    public function upload($id, $body)
     {
         $endpoint = "/me/drive/items/{$id}/content";
-        $body = $content;
-        return $this->request('put', [$endpoint, $body]);
+        return $this->request('put', $endpoint, true, $body);
     }
 
     /**
      * 上传文件到指定路径
      * @param $path
-     * @param $content
-     *
-     * @return mixed
-     * @throws ErrorException
-     */
-    public function uploadByPath($path, $content)
-    {
-        $requestPath = $this->getRequestPath($path);
-        $endpoint = "/me/drive/root{$requestPath}content";
-        $body = $content;
-        return $this->request('put', [$endpoint, $body]);
-    }
-
-    /**
-     * 离线上传 （个人账号 50M以下）
-     * @param $remote
-     * @param $url
-     *
+     * @param $body
      * @return array|mixed
      * @throws ErrorException
      */
-    public function uploadUrl($remote, $url)
+    public function uploadByPath($path, $body)
     {
-        $driveResp = $this->getDriveInfo();
-        if ($driveResp['errno'] === 0) {
-            if ($driveResp['data']['driveType'] !== 'business') {
-                $path = $this->getAbsolutePath(dirname($remote));
-                // $pathId = $this->pathToItemId($path);
-                // $endpoint = "/me/drive/items/{$pathId}/children"; // by id
-                $handledPath = $this->encodeUrl(trim($path, '/'));
-                $graphPath = empty($handledPath) ? '/' : ":/{$handledPath}:/";
-                $endpoint = "/me/drive/root{$graphPath}children";
-                $headers = ['Prefer' => 'respond-async'];
-                $body = '{"@microsoft.graph.sourceUrl":"' . $url . '","name":"'
-                    . pathinfo($remote, PATHINFO_BASENAME) . '","file":{}}';
-                $response = $this->request('post', [$endpoint, $body, $headers]);
-                if ($response['errno'] === 0) {
-                    $data = [
-                        'redirect' => $response['headers']['Location'],
-                    ];
-
-                    return $this->response($data);
-                }
-                return $response;
-            }
-            return $this->response(
-                ['driveType' => $driveResp['data']['driveType']],
-                400,
-                'Account Not Support'
-            );
-        }
-        return $driveResp;
+        $requestPath = $this->getRequestPath($path);
+        $endpoint = "/me/drive/root{$requestPath}content";
+        return $this->request('put', $endpoint, true, $body);
     }
 
     /**
      * 创建分片上传
      * @param $remote
-     *
-     * @return mixed
+     * @return array|mixed
      * @throws ErrorException
      */
     public function createUploadSession($remote)
     {
-        $graphPath = $this->getRequestPath($remote);
-        $endpoint = "/me/drive/root{$graphPath}createUploadSession";
+        $requestPath = $this->getRequestPath($remote);
+        $endpoint = "/me/drive/root{$requestPath}createUploadSession";
         $body = json_encode([
             'item' => [
-                '@microsoft.graph.conflictBehavior' => 'fail',
+                '@microsoft.request.conflictBehavior' => 'fail',
             ],
         ]);
-        return $this->request('post', [$endpoint, $body]);
+        return $this->request('post', $endpoint, true, $body);
+    }
+
+    /**
+     * 通过资源id创建分片上传
+     * @param $sid
+     * @return array|mixed
+     * @throws ErrorException
+     */
+    public function createUploadSessionBySid($sid)
+    {
+        $endpoint = "/me/drive/items/{$sid}/createUploadSession";
+        $body = json_encode([
+            'item' => [
+                '@microsoft.request.conflictBehavior' => 'fail',
+            ],
+        ]);
+        return $this->request('post', $endpoint, true, $body);
     }
 
     /**
      * 上传分片
-     * @param     $url
-     * @param     $file
-     * @param     $offset
+     * @param $url
+     * @param $file
+     * @param $offset
      * @param int $length
-     *
-     * @return mixed
+     * @return array|mixed
      * @throws ErrorException
      */
-    public function uploadToSession($url, $file, $offset, $length = 5242880)
-    {
+    public function uploadToSession(
+        $url,
+        $file,
+        $offset,
+        $length = 5242880
+    ) {
         $file_size = $this->readFileSize($file);
         $content_length = (($offset + $length) > $file_size) ? ($file_size
             - $offset) : $length;
@@ -601,7 +313,9 @@ class OneDrive
         $requestBody = $content;
         $response = $this->request(
             'put',
-            [$url, $requestBody, $headers, 360]
+            [$url, $headers, 360],
+            false,
+            $requestBody
         );
         return $response;
     }
@@ -609,7 +323,7 @@ class OneDrive
     /**
      * 获取分片上传状态
      * @param $url
-     * @return mixed
+     * @return array|mixed
      * @throws ErrorException
      */
     public function uploadSessionStatus($url)
@@ -619,85 +333,13 @@ class OneDrive
 
     /**
      * 删除分片上传session
-     *
      * @param $url
-     * @return mixed
+     * @return array|mixed
      * @throws ErrorException
      */
     public function deleteUploadSession($url)
     {
         return $this->request('delete', $url, false);
-    }
-
-    /**
-     * 资源id转路径
-     *
-     * @param      $itemId
-     * @param bool $start
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function itemIdToPath($itemId, $start = false)
-    {
-        $response = $this->getItem($itemId);
-        if ($response['errno'] === 0) {
-            $item = $response['data'];
-            if (!array_key_exists('path', $item['parentReference']) && $item['name'] === 'root') {
-                return $this->response([
-                    'path' => '/',
-                ]);
-            }
-            $path = $item['parentReference']['path'];
-            if (Str::startsWith($path, '/drive/root:')) {
-                $path = Str::after($path, '/drive/root:');
-            }
-
-            // 兼容根目录
-            if ($path === '') {
-                $pathArr = [];
-            } elseif ($start) {
-                $pathArr = explode('/', $path);
-            } else {
-                $pathArr = explode('/', $path);
-                if (trim($start, '/') !== '') {
-                    $pathArr = array_slice($pathArr, 1);
-                }
-            }
-
-
-            $pathArr[] = $item['name'];
-
-            $path = $this->getAbsolutePath(implode('/', $pathArr));
-
-            return $this->response([
-                'path' => $path,
-            ]);
-        }
-        return $response;
-    }
-
-    /**
-     * 路径转资源id
-     *
-     * @param $path
-     *
-     * @return array|mixed
-     * @throws ErrorException
-     */
-    public function pathToItemId($path)
-    {
-        $requestPath = $this->getRequestPath($path);
-        $endpoint = $requestPath === '/'
-            ? '/me/drive/root'
-            : '/me/drive/root' . $requestPath;
-        $response = $this->request('get', $endpoint);
-        if ($response['errno'] === 0) {
-            $data = $response['data'];
-
-            return $this->response(['id' => $data['id']]);
-        }
-        return $response;
     }
 
     /**
@@ -751,10 +393,10 @@ class OneDrive
         $parts = array_filter(explode('/', $path), 'strlen');
         $absolutes = [];
         foreach ($parts as $part) {
-            if ('.' === (string)$part) {
+            if ('.' == $part) {
                 continue;
             }
-            if ('..' === (string)$part) {
+            if ('..' == $part) {
                 array_pop($absolutes);
             } else {
                 $absolutes[] = $part;
@@ -776,7 +418,7 @@ class OneDrive
         if ($isList) {
             $items = [];
             foreach ($response as $item) {
-                if (Arr::has($item, 'file')) {
+                if (array_has($item, 'file')) {
                     $item['ext'] = strtolower(
                         pathinfo(
                             $item['name'],
@@ -797,17 +439,11 @@ class OneDrive
         return $response;
     }
 
-    /**
-     * @param $data
-     * @param int $errno
-     * @param string $msg
-     * @return array
-     */
     public function response($data, $errno = 0, $msg = 'ok'): array
     {
         return [
             'errno' => $errno,
-            'msg' => $msg,
+            'message' => $msg,
             'data' => $data,
         ];
     }
@@ -828,11 +464,11 @@ class OneDrive
         if (!($file = fopen($path, 'rb'))) {
             return false;
         }
-
-        //Check if it really is a small file (< 2 GB)
-        if ($size >= 0 && fseek($file, 0, SEEK_END) === 0) { //It really is a small file
-            fclose($file);
-            return $size;
+        if ($size >= 0) { //Check if it really is a small file (< 2 GB)
+            if (fseek($file, 0, SEEK_END) === 0) { //It really is a small file
+                fclose($file);
+                return $size;
+            }
         }
         //Quickly jump the first 2 GB with fseek. After that fseek is not working on 32 bit php (it uses int internally)
         $size = PHP_INT_MAX - 1;
@@ -854,20 +490,17 @@ class OneDrive
 
     /**
      * Read File Content
-     *
      * @param $file
      * @param $offset
      * @param $length
-     *
      * @return bool|string
      */
     public function readFileContent($file, $offset, $length)
     {
-        $handler = fopen($file, 'rb') or die('Failed Get Content');
+        $handler = fopen($file, 'rb') ?? die('Failed Get Content');
         fseek($handler, $offset);
         return fread($handler, $length);
     }
-
 
     /**
      * 防止实例被克隆（这会创建实例的副本）
