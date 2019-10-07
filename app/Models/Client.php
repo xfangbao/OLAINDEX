@@ -1,11 +1,14 @@
 <?php
-
+/**
+ * This file is part of the wangningkai/OLAINDEX.
+ * (c) wangningkai <i@ningkai.wang>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
 
 namespace App\Models;
 
-
 use App\Service\Core\Constants;
-use Illuminate\Support\Arr;
 
 class Client
 {
@@ -13,34 +16,42 @@ class Client
      * @var string
      */
     public $client_id;
+
     /**
      * @var string
      */
     public $client_secret;
+
     /**
      * @var string
      */
     public $redirect_uri;
+
     /**
      * @var string
      */
     public $authorize_url;
+
     /**
      * @var string
      */
     public $authorize_endpoint;
+
     /**
      * @var string
      */
     public $token_endpoint;
+
     /**
      * @var string
      */
     public $graph_endpoint;
+
     /**
      * @var string
      */
     public $api_version;
+
     /**
      * @var string
      */
@@ -92,6 +103,4 @@ class Client
         ];
         return $config[array_get($account, 'account_type', 1)];
     }
-
-
 }

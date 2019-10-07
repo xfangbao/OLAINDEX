@@ -1,4 +1,10 @@
 <?php
+/**
+ * This file is part of the wangningkai/OLAINDEX.
+ * (c) wangningkai <i@ningkai.wang>
+ * This source file is subject to the MIT license that is bundled
+ * with this source code in the file LICENSE.
+ */
 if (!function_exists('is_json')) {
     /**
      * 判断字符串是否是json
@@ -30,7 +36,6 @@ if (!function_exists('url_encode')) {
         }
         return @implode('/', $url);
     }
-
 }
 if (!function_exists('trans_request_path')) {
     /**
