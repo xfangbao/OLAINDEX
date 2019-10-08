@@ -17,6 +17,11 @@ export default [
 				name: 'home',
 				component: loadView('Home'),
 			},
+			{
+				path: '/login',
+				name: 'login',
+				component: loadView('Login'),
+			},
 		],
 	},
 ]

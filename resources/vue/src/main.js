@@ -15,7 +15,7 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(VueToasted, {
 	theme: 'toasted-primary',
-	position: 'top-center',
+	position: 'top-right',
 	duration: 3000,
 	fitToScreen: 'true',
 })
