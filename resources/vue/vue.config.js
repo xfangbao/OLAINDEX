@@ -1,12 +1,12 @@
 'use strict'
 const path = require('path')
 const defaultSettings = require('./src/config/index.js')
+const name = defaultSettings.title || 'OLAINDEX' // page title
+const isProduction = process.env.NODE_ENV === 'production'
 
 const resolve = dir => {
 	return path.join(__dirname, dir)
 }
-
-const name = defaultSettings.title || 'OLAINDEX' // page title
 
 module.exports = {
 	// output built static files to Laravel's public dir.
@@ -14,11 +14,21 @@ module.exports = {
 	outputDir: '../../public',
 	// modify the location of the generated HTML file.
 	// make sure to do this only in production.
-	indexPath: process.env.NODE_ENV === 'production' ? '../resources/views/index.blade.php' : 'index.html',
+	indexPath: isProduction ? '../resources/views/index.blade.php' : 'index.html',
 	// eslint-loader 是否在保存的时候检查
-	lintOnSave: process.env.NODE_ENV !== 'production',
+	lintOnSave: !isProduction,
 	// 生产环境sourceMap
 	productionSourceMap: false,
+	css: {
+		// 是否使用css分离插件 ExtractTextPlugin
+		extract: false,
+		// 开启 CSS source maps?
+		sourceMap: false,
+		// css预设器配置项
+		loaderOptions: {},
+		// 启用 CSS modules for all css / pre-processor files.
+		modules: false,
+	},
 	// proxy API requests to Valet during development
 	devServer: {
 		proxy: {
@@ -41,7 +51,7 @@ module.exports = {
 		},
 	},
 	chainWebpack(config) {
-		config.when(process.env.NODE_ENV !== 'development', config => {
+		config.when(isProduction, config => {
 			config
 				.plugin('ScriptExtHtmlWebpackPlugin')
 				.after('html')
