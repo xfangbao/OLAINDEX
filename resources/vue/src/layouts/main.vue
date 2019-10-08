@@ -8,7 +8,7 @@
 
 				<b-collapse id="nav-collapse" is-nav>
 					<b-navbar-nav>
-						<b-nav-item href="#">首页</b-nav-item>
+						<b-nav-item href="#"> <i class="ri-home-fill"></i> 首页 </b-nav-item>
 					</b-navbar-nav>
 				</b-collapse>
 			</b-container>

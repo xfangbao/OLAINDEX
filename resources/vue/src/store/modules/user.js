@@ -1,5 +1,5 @@
-import Utils from '@/utils'
-import Storage from '@/service/store'
+import Utils from '../../utils'
+import Storage from '../../service/store'
 export default {
 	state: {
 		user_id: '',

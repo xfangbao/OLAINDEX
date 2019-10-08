@@ -1,5 +1,5 @@
 <template>
-	<div id="home">
+	<div id="message">
 		<b-jumbotron>
 			<h1 class="display-4">OLAINDEX</h1>
 			<p class="lead">Another OneDrive Directory Index.</p>
@@ -13,10 +13,6 @@
 
 <script>
 export default {
-	name: 'home',
-	created() {
-		this.$toasted.success('测试信息')
-		this.$toasted.error('测试错误')
-	},
+	name: 'message',
 }
 </script>

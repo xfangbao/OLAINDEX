@@ -1,4 +1,4 @@
-import Storage from '@/service/store'
+import Storage from '../../service/store'
 export default {
 	state: {
 		app_name: 'OLAINDEX',

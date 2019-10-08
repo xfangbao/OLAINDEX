@@ -19,7 +19,7 @@ module.exports = {
 	lintOnSave: !isProduction,
 	// 生产环境sourceMap
 	productionSourceMap: false,
-	css: {
+	/* css: {
 		// 是否使用css分离插件 ExtractTextPlugin
 		extract: false,
 		// 开启 CSS source maps?
@@ -28,7 +28,7 @@ module.exports = {
 		loaderOptions: {},
 		// 启用 CSS modules for all css / pre-processor files.
 		modules: false,
-	},
+	}, */
 	// proxy API requests to Valet during development
 	devServer: {
 		proxy: {
