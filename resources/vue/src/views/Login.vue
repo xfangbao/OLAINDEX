@@ -27,7 +27,7 @@
 								></b-form-input>
 							</b-form-group>
 
-							<b-button type="submit" variant="primary">登录</b-button>
+							<b-button type="submit" variant="primary" @submit="handleSubmit">登录</b-button>
 						</b-form>
 					</b-card-body>
 				</b-card>
@@ -36,6 +36,7 @@
 	</div>
 </template>
 <script>
+import { mapActions } from 'vuex'
 export default {
 	name: 'login',
 	data: () => ({
@@ -44,5 +45,12 @@ export default {
 			password: '',
 		},
 	}),
+	methods: {
+		...mapActions(['handleLogin']),
+		handleSubmit(e) {
+            e.preventDefault()
+            //todo:
+		},
+	},
 }
 </script>
