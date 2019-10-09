@@ -1,9 +1,10 @@
 'use strict '
-
+import Vue from 'vue'
 import axios from 'axios'
 import store from '../store'
 import router from '../router'
 import setting from '../config'
+import { getToken } from '@/utils/auth'
 
 // Full config:  https://github.com/axios/axios#request-config
 // axios.defaults.baseURL = process.env.baseURL || process.env.apiUrl || '';
@@ -12,7 +13,7 @@ import setting from '../config'
 
 let config = {
 	baseURL: process.env.NODE_ENV === 'production' ? setting.build.baseUrl : setting.dev.baseUrl,
-	// timeout: 3600, // Timeout
+	timeout: 5000, // Timeout
 	// withCredentials: true, // Check cross-site Access-Control
 }
 
@@ -20,9 +21,8 @@ const _axios = axios.create(config)
 
 _axios.interceptors.request.use(
 	function(config) {
-		const token = store.getters.token
-		if (token) {
-			config.headers.common['Authorization'] = `${token}`
+		if (store.getters.token) {
+			config.headers.common['Authorization'] = getToken()
 		}
 		// Do something before request is sent
 		return config
@@ -38,7 +38,6 @@ _axios.interceptors.response.use(
 	function(response) {
 		// Do something with response data
 		const token = response.headers.authorization
-		console.log(response)
 		if (token) {
 			// 如果 header 中存在 token，那么触发 refreshToken 方法，替换本地的 token
 			store.commit('setToken', token)
@@ -48,7 +47,6 @@ _axios.interceptors.response.use(
 	function(error) {
 		if (error && error.response) {
 			const token = error.response.headers.authorization
-			console.log(error.response)
 			if (token) {
 				// 如果 header 中存在 token，那么触发 refreshToken 方法，替换本地的 token
 				store.commit('setToken', token)
@@ -125,7 +123,7 @@ _axios.interceptors.response.use(
 			}
 		}
 		// Do something with response error
-
+		Vue.$toasted.error(error.message)
 		return Promise.reject(error)
 	},
 )

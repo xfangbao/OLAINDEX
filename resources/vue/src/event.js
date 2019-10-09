@@ -3,7 +3,7 @@ export default [
 		name: 'APP_LOGIN_SUCCESS',
 		callback: function() {
 			this.$router.push({
-				name: 'Dashboard',
+				name: 'dashboard',
 			})
 		},
 	},

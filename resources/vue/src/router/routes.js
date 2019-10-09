@@ -7,21 +7,33 @@ export default [
 	{
 		path: '/',
 		name: 'Root',
-		meta: {
-			requiresAuth: false,
-		},
+
 		component: Main,
 		children: [
 			{
 				path: '/',
 				name: 'home',
+				meta: {
+					title: 'OLAINDEX',
+					requiresAuth: false,
+				},
 				component: loadView('Home'),
 			},
 			{
 				path: '/login',
 				name: 'login',
+				meta: {
+					title: '登陆',
+					requiresAuth: false,
+				},
 				component: loadView('Login'),
 			},
 		],
+	},
+	{
+		path: '/admin',
+		name: 'AdminRoot',
+		component: Main,
+		children: [],
 	},
 ]

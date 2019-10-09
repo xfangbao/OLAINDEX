@@ -1,10 +1,10 @@
-import Utils from '../../utils'
+import { getToken, setToken, removeToken } from '../../utils/auth'
 import Storage from '../../service/store'
 export default {
 	state: {
 		user_id: '',
 		name: '',
-		token: Utils.getToken(),
+		token: getToken(),
 		status: '',
 		bind_account: false,
 	},
@@ -20,15 +20,14 @@ export default {
 		},
 		setToken(state, token) {
 			state.token = token
-			Utils.setToken(token)
+			setToken(token)
 		},
 		clearAll(state) {
 			state.token = ''
 			state.user_id = ''
 			state.name = ''
 			state.status = ''
-			state.bind_account = ''
-			Utils.removeToken()
+			removeToken()
 			Storage.set('user', {})
 		},
 	},
