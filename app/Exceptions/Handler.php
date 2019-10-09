@@ -28,9 +28,9 @@ class Handler extends ExceptionHandler
 
     /**
      * Report or log an exception.
-     *
-     * @param  \Exception  $exception
-     * @return void
+     * @param Exception $exception
+     * @return mixed|void
+     * @throws Exception
      */
     public function report(Exception $exception)
     {
@@ -39,13 +39,31 @@ class Handler extends ExceptionHandler
 
     /**
      * Render an exception into an HTTP response.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Exception  $exception
-     * @return \Illuminate\Http\Response
+     * @param \Illuminate\Http\Request $request
+     * @param Exception $exception
+     * @return \Illuminate\Http\Response|\Symfony\Component\HttpFoundation\Response
      */
     public function render($request, Exception $exception)
     {
+        // 接口json错误响应
+        if ($request->is('api/*')) {
+            $response = [
+                'code' => 200,
+                'message' => '',
+                'data' => [],
+            ];
+            $error = $this->convertExceptionToResponse($exception);
+            $response['code'] = $error->getStatusCode();
+            $response['message'] = $exception->getMessage();
+            if (config('app.debug')) {
+                $response['message'] = empty($exception->getMessage()) ? 'something error' : $exception->getMessage();
+                if ($error->getStatusCode() >= 500) {
+                    $response['trace'] = $exception->getTraceAsString();
+                    $response['code'] = $exception->getCode();
+                }
+            }
+            return response()->json($response, $error->getStatusCode());
+        }
         return parent::render($request, $exception);
     }
 }
