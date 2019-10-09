@@ -46,7 +46,7 @@ class Handler extends ExceptionHandler
     public function render($request, Exception $exception)
     {
         // 接口json错误响应
-        if ($request->is('api/*')) {
+        if ($request->wantsJson() || $request->is('api/*')) {
             $response = [
                 'code' => 200,
                 'message' => '',
