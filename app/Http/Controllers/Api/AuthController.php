@@ -18,8 +18,8 @@ class AuthController extends BaseController
      */
     public function __construct()
     {
-        $this->middleware('jwt.auth', ['except' => ['login', 'refresh']]);
         $this->middleware('token.refresh', ['except' => ['login', 'refresh', 'logout']]);
+        $this->middleware('jwt.auth', ['except' => ['login', 'refresh']]);
     }
 
     /**

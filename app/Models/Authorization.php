@@ -79,7 +79,7 @@ class Authorization
     {
         return Carbon::createFromTimestamp($this->getPayload()->get('iat'))
             ->addMinutes(config('jwt.refresh_ttl'))
-            ->toDateString();
+            ->toDateTimeString();
     }
 
     /**
