@@ -29,8 +29,7 @@ class SettingController extends BaseController
         foreach ($setting as $detail) {
             $settingData[$detail['name']] = $detail['value'];
         }
-        $data = $this->paginate($settingData);
-        return $this->returnData($data);
+        return $this->returnData($settingData);
     }
 
     /**
