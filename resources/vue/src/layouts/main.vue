@@ -1,6 +1,6 @@
 <template>
 	<div id="page-common">
-		<b-navbar toggleable="md" type="dark" variant="primary" sticky="true">
+		<b-navbar toggleable="md" type="dark" variant="primary" :sticky="true">
 			<b-container>
 				<b-navbar-brand :to="{ name: 'home' }">OLAINDEX</b-navbar-brand>
 
@@ -18,7 +18,7 @@
 		</b-navbar>
 		<b-container class="mt-3">
 			<router-view />
-			<b-footer id="footer">
+			<footer id="footer">
 				<b-row class="text-center">
 					<b-col col lg="12">
 						<p>
@@ -27,7 +27,7 @@
 						</p>
 					</b-col>
 				</b-row>
-			</b-footer>
+			</footer>
 		</b-container>
 	</div>
 </template>

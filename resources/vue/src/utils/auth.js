@@ -2,22 +2,16 @@ import Cookies from 'js-cookie'
 
 const TOKEN_KEY = 'v_access_token'
 
-const setToken = token => {
+export function setToken(token) {
 	Cookies.set(TOKEN_KEY, token)
 }
 
-const getToken = () => {
+export function getToken() {
 	const token = Cookies.get(TOKEN_KEY)
 	if (token) return token
 	else return false
 }
 
-const removeToken = () => {
+export function removeToken() {
 	return Cookies.remove(TOKEN_KEY)
-}
-
-export default {
-	setToken,
-	getToken,
-	removeToken,
 }

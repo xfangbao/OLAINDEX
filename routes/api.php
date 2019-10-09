@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -14,9 +12,11 @@ use Illuminate\Http\Request;
 */
 
 // 登陆相关
-Route::post('/login','AuthController@login');
-Route::post('/logout','AuthController@logout');
-Route::get('/user','AuthController@user');
+Route::post('/login', 'AuthController@login');
+Route::post('/logout', 'AuthController@logout');
+Route::get('/user', 'AuthController@user');
 
-Route::get('/settings','SettingController@index');
-Route::post('/settings','SettingController@update');
+Route::get('/settings', 'SettingController@index');
+Route::post('/settings', 'SettingController@update');
+
+Route::get('/app/config', 'AppController@config');

@@ -7,7 +7,6 @@ export default [
 	{
 		path: '/',
 		name: 'Root',
-
 		component: Main,
 		children: [
 			{
