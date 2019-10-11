@@ -11,5 +11,7 @@
 	</footer>
 </template>
 <script>
-export default {}
+export default {
+	name: 'page-footer',
+}
 </script>

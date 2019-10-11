@@ -1,4 +1,5 @@
 import Main from '../views/layouts/Main.vue'
+import Admin from '../views/layouts/Admin.vue'
 function loadView(view) {
 	return () => import(/* webpackChunkName: "chunk-view-[request]" */ `@/views/${view}.vue`)
 }
@@ -38,7 +39,17 @@ export default [
 	},
 	{
 		path: '/admin',
-		component: Main,
-		children: [],
+		component: Admin,
+		children: [
+			{
+				path: '/admin/setting',
+				name: 'setting',
+				meta: {
+					title: '设置',
+					requiresAuth: false,
+				},
+				component: loadView('admin/Setting'),
+			},
+		],
 	},
 ]

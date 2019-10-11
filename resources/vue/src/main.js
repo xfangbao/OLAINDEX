@@ -7,6 +7,7 @@ import * as filters from './utils/filters'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootswatch/dist/lux/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'remixicon/fonts/remixicon.css'
 
 import VueToasted from 'vue-toasted'
 

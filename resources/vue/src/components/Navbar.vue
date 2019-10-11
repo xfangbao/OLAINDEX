@@ -8,7 +8,32 @@
 			<b-collapse id="nav-collapse" is-nav>
 				<b-navbar-nav>
 					<b-nav-item :to="{ name: 'home' }"> <i class="ri-home-fill"></i> 首页 </b-nav-item>
+					<template v-for="item in menus">
+						<b-nav-item-dropdown
+							v-if="item.children !== undefined && item.children.length > 0"
+							:text="item.name"
+							:key="item.name"
+							right
+						>
+							<template v-slot:text>
+								<i :class="`ri-${item.icon}-fill`"></i>
+								{{ item.name }}
+							</template>
+							<b-dropdown-item
+								v-for="item_child in item.children"
+								:key="item_child.name"
+								:to="item_child.to"
+								>{{ item_child.name }}</b-dropdown-item
+							>
+						</b-nav-item-dropdown>
+
+						<b-nav-item v-else :to="item.to" :key="item.name">
+							<i :class="`ri-${item.icon}-fill`"></i>
+							{{ item.name }}
+						</b-nav-item>
+					</template>
 				</b-navbar-nav>
+
 				<b-navbar-nav v-show="this.$route.name !== 'login'" class="ml-auto">
 					<b-nav-item :to="{ name: 'login' }"> <i class="ri-login-box-fill"></i> 登陆 </b-nav-item>
 				</b-navbar-nav>
@@ -18,7 +43,7 @@
 </template>
 <script>
 export default {
-	name: 'navbar',
+	name: 'page-navbar',
 	props: {
 		brand: {
 			type: Object,
@@ -29,6 +54,7 @@ export default {
 				}
 			},
 		},
+		menus: Array,
 	},
 }
 </script>
