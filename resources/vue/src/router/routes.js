@@ -1,12 +1,10 @@
-import Main from '../layouts/main.vue'
+import Main from '../views/layouts/Main.vue'
 function loadView(view) {
 	return () => import(/* webpackChunkName: "chunk-view-[request]" */ `@/views/${view}.vue`)
-	// return () => import(/* webpackChunkName: "routes" */ `@/views/${view}.vue`)
 }
 export default [
 	{
 		path: '/',
-		name: 'Root',
 		component: Main,
 		children: [
 			{
@@ -16,7 +14,16 @@ export default [
 					title: 'OLAINDEX',
 					requiresAuth: false,
 				},
-				component: loadView('Home'),
+				component: loadView('home/Index'),
+			},
+			{
+				path: '/message',
+				name: 'message',
+				meta: {
+					title: '消息',
+					requiresAuth: false,
+				},
+				component: loadView('home/Message'),
 			},
 			{
 				path: '/login',
@@ -25,13 +32,12 @@ export default [
 					title: '登陆',
 					requiresAuth: false,
 				},
-				component: loadView('Login'),
+				component: loadView('home/Login'),
 			},
 		],
 	},
 	{
 		path: '/admin',
-		name: 'AdminRoot',
 		component: Main,
 		children: [],
 	},

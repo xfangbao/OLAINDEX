@@ -76,7 +76,7 @@ module.exports = {
 				})
 				.end()
 			config.optimization.splitChunks({
-				chunks: 'all',
+				chunks: 'async',
 				cacheGroups: {
 					libs: {
 						name: 'chunk-libs',

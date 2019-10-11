@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-view-admin-Setting-vue"],{"2e96":function(e,n,t){"use strict";t.r(n);var i=function(){var e=this,n=e.$createElement,t=e._self._c||n;return t("div",{attrs:{id:"setting"}})},u=[],s={},a=s,c=t("2877"),l=Object(c["a"])(a,i,u,!1,null,null,null);n["default"]=l.exports}}]);

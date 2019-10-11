@@ -48,8 +48,8 @@ export default {
 	methods: {
 		...mapActions(['handleLogin']),
 		handleSubmit(e) {
-            e.preventDefault()
-            //todo:
+			e.preventDefault()
+			//todo:
 		},
 	},
 }
