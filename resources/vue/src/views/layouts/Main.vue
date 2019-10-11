@@ -1,6 +1,6 @@
 <template>
 	<div id="page-main">
-		<Navbar></Navbar>
+		<Navbar :menus="menus"></Navbar>
 		<b-container class="mt-3">
 			<router-view />
 			<Footer></Footer>
@@ -10,10 +10,13 @@
 <script>
 import Navbar from '@/components/Navbar.vue'
 import Footer from '@/components/Footer.vue'
+import { HomeMenu } from '@/api/menus'
 export default {
 	name: 'page-main',
 	components: { Navbar, Footer },
-	data: () => ({}),
+	data: () => ({
+		menus: HomeMenu,
+	}),
 	created() {
 		console.log(this.$route.name)
 	},

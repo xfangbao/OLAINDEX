@@ -7,13 +7,11 @@
 
 			<b-collapse id="nav-collapse" is-nav>
 				<b-navbar-nav>
-					<b-nav-item :to="{ name: 'home' }"> <i class="ri-home-fill"></i> 首页 </b-nav-item>
 					<template v-for="item in menus">
 						<b-nav-item-dropdown
 							v-if="item.children !== undefined && item.children.length > 0"
 							:text="item.name"
 							:key="item.name"
-							right
 						>
 							<template v-slot:text>
 								<i :class="`ri-${item.icon}-fill`"></i>

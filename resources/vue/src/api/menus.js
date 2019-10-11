@@ -1,4 +1,16 @@
-const Menu = [
+const HomeMenu = [
+	{
+		name: '首页',
+		icon: 'home',
+		to: { name: 'home' },
+	},
+]
+const AdminMenu = [
+	{
+		name: '首页',
+		icon: 'home',
+		to: { name: 'dashboard' },
+	},
 	{
 		name: '设置',
 		icon: 'settings',
@@ -41,4 +53,4 @@ const Menu = [
 		],
 	},
 ]
-export default Menu
+export { AdminMenu, HomeMenu }

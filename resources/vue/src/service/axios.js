@@ -121,9 +121,12 @@ _axios.interceptors.response.use(
 
 				default:
 			}
+		} else {
+			error.message = '网络错误,无法请求到数据！'
 		}
+
 		// Do something with response error
-		Vue.$toasted.error(error.message)
+		Vue.toasted.error(error.message)
 		return Promise.reject(error)
 	},
 )

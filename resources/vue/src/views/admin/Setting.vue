@@ -125,7 +125,7 @@
 </template>
 <script>
 export default {
-	name: 'setting',
+	name: 'page-setting',
 	data: () => ({
 		form: {
 			site_name: '',

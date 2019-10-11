@@ -8,6 +8,7 @@ export default {
 		token: getToken(),
 		status: '',
 		is_admin: false,
+		account: false,
 	},
 	mutations: {
 		setUserId(state, id) {
@@ -26,12 +27,16 @@ export default {
 			state.token = token
 			setToken(token)
 		},
+		setAccount(state, account) {
+			state.account = account
+		},
 		clearAll(state) {
 			state.token = ''
 			state.user_id = ''
 			state.name = ''
 			state.status = ''
 			state.is_admin = false
+			state.account = false
 			removeToken()
 			Storage.set('user', {})
 		},

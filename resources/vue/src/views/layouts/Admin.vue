@@ -10,12 +10,12 @@
 <script>
 import Navbar from '@/components/Navbar.vue'
 import Footer from '@/components/Footer.vue'
-import menus from '@/api/menus'
+import { AdminMenu } from '@/api/menus'
 export default {
 	name: 'page-admin',
 	components: { Navbar, Footer },
 	data: () => ({
-		menus: menus,
+		menus: AdminMenu,
 	}),
 	created() {
 		console.log(this.$route.name)

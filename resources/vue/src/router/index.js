@@ -49,8 +49,10 @@ router.beforeEach((to, from, next) => {
 			store.commit('setUserId', user.id)
 			store.commit('setUserName', user.name)
 			store.commit('setStatus', user.status)
+			store.commit('setIsAdmin', user.is_admin)
+			store.commit('setAccount', user.account)
 		} else {
-			// store.dispatch('getUserInfo')
+			store.dispatch('getUserInfo')
 		}
 		if (token) {
 			store.commit('setToken', token)

@@ -43,6 +43,15 @@ export default [
 		component: Admin,
 		children: [
 			{
+				path: '/',
+				name: 'dashboard',
+				meta: {
+					title: '控制台',
+					requiresAuth: false,
+				},
+				component: loadView('admin/Index'),
+			},
+			{
 				path: '/admin/setting',
 				name: 'setting',
 				meta: {
