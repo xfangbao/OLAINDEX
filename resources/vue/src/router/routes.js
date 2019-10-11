@@ -1,7 +1,8 @@
 import Main from '../views/layouts/Main.vue'
 import Admin from '../views/layouts/Admin.vue'
 function loadView(view) {
-	return () => import(/* webpackChunkName: "chunk-view-[request]" */ `@/views/${view}.vue`)
+	// return () => import(/* webpackChunkName: "chunk-view-[request]" */ `@/views/${view}.vue`)
+	return () => import(`@/views/${view}.vue`)
 }
 export default [
 	{
