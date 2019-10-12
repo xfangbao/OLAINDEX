@@ -31,15 +31,15 @@ class AuthController extends BaseController
     public function login(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'email' => 'required|email|exists:users',
+            'name' => 'required|exists:users',
             'password' => 'required',
         ]);
         if ($validator->fails()) {
             return $this->errorBadRequest($validator);
         }
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('name', 'password');
         if (!$token = \Auth::guard('api')->attempt($credentials)) {
-            return $this->returnData([], 401, trans('auth.failed'));
+            return $this->returnData([], 400, trans('auth.failed'));
         }
         $authorization = new Authorization($token);
         \Event::dispatch(new Login('api', $authorization->user(), false));

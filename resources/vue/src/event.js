@@ -12,7 +12,7 @@ export default [
 		callback: function() {
 			this.$store.commit('clearAll')
 			this.$router.push({
-				name: 'Login',
+				name: 'home',
 			})
 		},
 	},

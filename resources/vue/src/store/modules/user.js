@@ -31,10 +31,10 @@ export default {
 			state.account = account
 		},
 		clearAll(state) {
-			state.token = ''
+			state.token = false
 			state.user_id = ''
 			state.name = ''
-			state.status = ''
+			state.status = false
 			state.is_admin = false
 			state.account = false
 			removeToken()
@@ -57,7 +57,7 @@ export default {
 			})
 		},
 		// 退出登录
-		async handleLogOut({ commit }) {
+		async handleLogout({ commit }) {
 			return await new Promise((resolve, reject) => {
 				logout()
 					.then(res => {

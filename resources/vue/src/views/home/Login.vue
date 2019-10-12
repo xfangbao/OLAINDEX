@@ -7,7 +7,7 @@
 						<i class="ri-login-box-fill"></i> 登陆
 					</template>
 					<b-card-body>
-						<b-form @submit="handleSubmit">
+						<b-form @submit="login">
 							<b-form-group label="用户名" label-for="name">
 								<b-form-input
 									id="name"
@@ -48,7 +48,7 @@ export default {
 	}),
 	methods: {
 		...mapActions(['handleLogin']),
-		handleSubmit(e) {
+		login(e) {
 			e.preventDefault()
 			//todo:
 			let _this = this
@@ -59,10 +59,11 @@ export default {
 		},
 		loginSuccess(res) {
 			console.log(res)
-			this.$router.push({ name: 'dashboard' })
+			let _this = this
+			_this.$router.push({ name: 'dashboard' })
 			// 延迟 1 秒显示欢迎信息
 			setTimeout(() => {
-				this.$tosted.success('登陆成功')
+				_this.$toasted.success('欢迎回来')
 			}, 1000)
 		},
 		loginFailed(err) {

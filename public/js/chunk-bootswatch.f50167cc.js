@@ -1,1 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-bootswatch"],{d4ce:function(n,o,w){}}]);

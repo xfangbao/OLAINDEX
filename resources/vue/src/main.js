@@ -5,8 +5,8 @@ import store from './store'
 import * as filters from './utils/filters'
 
 import BootstrapVue from 'bootstrap-vue'
-import 'bootswatch/dist/lux/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'bootswatch/dist/lux/bootstrap.min.css'
+import 'bootstrap-vue/dist/bootstrap-vue.min.css'
 import 'remixicon/fonts/remixicon.css'
 
 import VueToasted from 'vue-toasted'

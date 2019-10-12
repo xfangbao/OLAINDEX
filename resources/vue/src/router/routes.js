@@ -47,7 +47,7 @@ export default [
 				name: 'dashboard',
 				meta: {
 					title: '控制台',
-					requiresAuth: false,
+					requiresAuth: true,
 				},
 				component: loadView('admin/Index'),
 			},
@@ -56,7 +56,7 @@ export default [
 				name: 'setting',
 				meta: {
 					title: '设置',
-					requiresAuth: false,
+					requiresAuth: true,
 				},
 				component: loadView('admin/Setting'),
 			},

@@ -17,8 +17,6 @@ export default {
 	data: () => ({
 		menus: HomeMenu,
 	}),
-	created() {
-		console.log(this.$route.name)
-	},
+	created() {},
 }
 </script>
