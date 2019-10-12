@@ -7,7 +7,7 @@
 						<i class="ri-login-box-fill"></i> 登陆
 					</template>
 					<b-card-body>
-						<b-form action method="post">
+						<b-form @submit="handleSubmit">
 							<b-form-group label="用户名" label-for="name">
 								<b-form-input
 									id="name"
@@ -15,6 +15,7 @@
 									type="text"
 									required
 									placeholder="请输入用户名"
+									ref="name"
 								></b-form-input>
 							</b-form-group>
 							<b-form-group label="请输入密码" label-for="name">
@@ -27,7 +28,7 @@
 								></b-form-input>
 							</b-form-group>
 
-							<b-button type="submit" variant="primary" @submit="handleSubmit">登录</b-button>
+							<b-button type="submit" variant="primary">登录</b-button>
 						</b-form>
 					</b-card-body>
 				</b-card>
@@ -38,7 +39,7 @@
 <script>
 import { mapActions } from 'vuex'
 export default {
-	name: 'login',
+	name: 'page-login',
 	data: () => ({
 		form: {
 			name: '',
@@ -50,6 +51,22 @@ export default {
 		handleSubmit(e) {
 			e.preventDefault()
 			//todo:
+			let _this = this
+			_this
+				.handleLogin(_this.form)
+				.then(res => _this.loginSuccess(res))
+				.catch(err => _this.loginFailed(err))
+		},
+		loginSuccess(res) {
+			console.log(res)
+			this.$router.push({ name: 'dashboard' })
+			// 延迟 1 秒显示欢迎信息
+			setTimeout(() => {
+				this.$tosted.success('登陆成功')
+			}, 1000)
+		},
+		loginFailed(err) {
+			console.log(err.response)
 		},
 	},
 }

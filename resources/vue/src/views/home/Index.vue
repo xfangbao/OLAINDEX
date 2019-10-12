@@ -13,10 +13,6 @@
 
 <script>
 export default {
-	name: 'home',
-	created() {
-		this.$toasted.success('测试信息')
-		this.$toasted.error('测试错误')
-	},
+	name: 'page-home',
 }
 </script>

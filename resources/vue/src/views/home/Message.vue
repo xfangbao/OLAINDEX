@@ -13,7 +13,7 @@
 
 <script>
 export default {
-	name: 'message',
+	name: 'page-message',
 	data: () => ({
 		code: '500',
 		message: 'Another OneDrive Directory Index.',
