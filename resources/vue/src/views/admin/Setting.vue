@@ -143,8 +143,8 @@ export default {
 		},
 	}),
 	methods: {
-		onSubmit(evt) {
-			evt.preventDefault()
+		onSubmit(e) {
+			e.preventDefault()
 			alert(JSON.stringify(this.form))
 		},
 	},
