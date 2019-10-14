@@ -5,7 +5,7 @@ import store from './store'
 import * as filters from './utils/filters'
 
 import BootstrapVue from 'bootstrap-vue'
-import 'bootswatch/dist/lux/bootstrap.min.css'
+import 'bootswatch/dist/minty/bootstrap.min.css'
 import 'bootstrap-vue/dist/bootstrap-vue.min.css'
 import 'remixicon/fonts/remixicon.css'
 

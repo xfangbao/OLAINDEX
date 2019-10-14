@@ -27,16 +27,16 @@ export default [
 				},
 				component: loadView('home/Message'),
 			},
-			{
-				path: '/login',
-				name: 'login',
-				meta: {
-					title: '登陆',
-					requiresAuth: false,
-				},
-				component: loadView('home/Login'),
-			},
 		],
+	},
+	{
+		path: '/login',
+		name: 'login',
+		meta: {
+			title: '登陆',
+			requiresAuth: false,
+		},
+		component: loadView('home/Login'),
 	},
 	{
 		path: '/admin',
