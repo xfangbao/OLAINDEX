@@ -1,7 +1,7 @@
 <template>
 	<div id="page-login">
 		<b-container class="bg-white">
-			<b-row style="height:18rem;"></b-row>
+			<b-row style="height:5rem;"></b-row>
 			<b-row class="justify-content-center">
 				<b-col md="6">
 					<p class="h1 text-center mb-4">OLAINDEX</p>
