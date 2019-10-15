@@ -5,5 +5,5 @@ export function getAllConfig(params) {
 }
 
 export function updateConfig(params) {
-	return axios.put('/api/settings', params)
+	return axios.post('/api/settings', params)
 }

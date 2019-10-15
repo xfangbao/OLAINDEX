@@ -7,7 +7,7 @@
 					<p class="h1 text-center mb-4">OLAINDEX</p>
 					<b-card bg-variant="light" class="shadow border-0" header-class="border-bottom-0">
 						<template v-slot:header>
-							<i class="ri-login-box-fill"></i> 登陆
+							<i class="ri-lock-fill"></i> 登陆
 						</template>
 						<b-card-body>
 							<b-form @submit="login">
@@ -31,7 +31,10 @@
 									></b-form-input>
 								</b-form-group>
 
-								<b-button type="submit" variant="primary">登录</b-button>
+								<b-button type="submit" variant="primary">
+									<b-spinner small v-show="loading"></b-spinner>
+									<span class="mx-2">登录</span>
+								</b-button>
 							</b-form>
 						</b-card-body>
 					</b-card>
@@ -45,6 +48,7 @@ import { mapActions } from 'vuex'
 export default {
 	name: 'page-login',
 	data: () => ({
+		loading: false,
 		form: {
 			name: '',
 			password: '',
@@ -56,6 +60,7 @@ export default {
 			e.preventDefault()
 			//todo:
 			let _this = this
+			_this.loading = true
 			_this
 				.handleLogin(_this.form)
 				.then(res => _this.loginSuccess(res))
@@ -64,6 +69,7 @@ export default {
 		loginSuccess(res) {
 			console.log(res)
 			let _this = this
+			_this.loading = false
 			_this.$router.push({ name: 'dashboard' })
 			// 延迟 1 秒显示欢迎信息
 			setTimeout(() => {
@@ -71,6 +77,8 @@ export default {
 			}, 1000)
 		},
 		loginFailed(err) {
+			let _this = this
+			_this.loading = false
 			console.log(err.response)
 		},
 	},

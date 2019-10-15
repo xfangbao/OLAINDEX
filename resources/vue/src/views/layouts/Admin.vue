@@ -1,7 +1,7 @@
 <template>
 	<div id="page-admin">
 		<Navbar :menus="menus"></Navbar>
-		<b-container class="mt-3">
+		<b-container class="mt-4">
 			<router-view />
 			<Footer></Footer>
 		</b-container>

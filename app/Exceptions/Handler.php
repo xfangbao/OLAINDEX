@@ -58,7 +58,7 @@ class Handler extends ExceptionHandler
             if (config('app.debug')) {
                 $response['message'] = empty($exception->getMessage()) ? 'something error' : $exception->getMessage();
                 if ($error->getStatusCode() >= 500) {
-                    $response['trace'] = $exception->getTraceAsString();
+                    $response['trace'] = $exception->getTrace();
                     $response['code'] = $exception->getCode();
                 }
             }

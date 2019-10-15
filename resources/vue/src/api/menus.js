@@ -1,14 +1,14 @@
 const HomeMenu = [
 	{
 		name: '首页',
-		icon: 'home',
+		icon: 'home-3',
 		to: { name: 'home' },
 	},
 ]
 const AdminMenu = [
 	{
 		name: '首页',
-		icon: 'home',
+		icon: 'home-3',
 		to: { name: 'dashboard' },
 	},
 	{

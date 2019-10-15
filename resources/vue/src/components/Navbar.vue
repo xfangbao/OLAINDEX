@@ -34,12 +34,12 @@
 
 				<b-navbar-nav class="ml-auto" v-if="this.$route.name !== 'login'">
 					<b-nav-item v-if="access_token === false" :to="{ name: 'login' }">
-						<i class="ri-login-box-fill"></i> 登陆
+						<i class="ri-lock-fill"></i> 登陆
 					</b-nav-item>
 					<b-nav-item-dropdown v-else>
 						<!-- Using 'button-content' slot -->
 						<template v-slot:button-content>
-							<i class="ri-user-fill"></i>
+							<i class="ri-user-5-fill"></i>
 							{{ username }}
 						</template>
 						<b-dropdown-item :to="{ name: 'dashboard' }">后台管理</b-dropdown-item>
