@@ -3,7 +3,6 @@
 
 namespace App\Http\Controllers\Api;
 
-
 use App\Http\Controllers\BaseController;
 use App\Models\Setting;
 
@@ -24,5 +23,4 @@ class AppController extends BaseController
         }
         return $this->returnData($settingData);
     }
-
 }

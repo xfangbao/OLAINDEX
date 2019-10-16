@@ -84,5 +84,4 @@ class AuthController extends BaseController
 
         return $this->returnData($token);
     }
-
 }

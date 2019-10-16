@@ -104,5 +104,4 @@ class Authorization
             'refresh_expired_at' => $this->getRefreshExpiredAt(),
         ];
     }
-
 }
