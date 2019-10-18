@@ -79,7 +79,9 @@
             "@php artisan key:generate --ansi"
         ],
         "check-style": "phpcs -p --standard=PSR2 app/",
-        "fix-style": "phpcbf -p --standard=PSR2 app/"
+        "fix-style": "phpcbf -p --standard=PSR2 app/",
+        "install-app": "php artisan install",
+        "uninstall-app": "php artisan uninstall"
     },
     "repositories": {
         "packagist": {

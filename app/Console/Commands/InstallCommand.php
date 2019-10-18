@@ -49,24 +49,21 @@ class InstallCommand extends Command
             $this->warn('[.env.example] file missing,Please make sure the project complete!');
             exit;
         }
-        $app_url = $this->ask('APP_URL: (For Authorize)');
         $_search = [
             'APP_KEY=',
-            'APP_URL=http://localhost:8000',
         ];
         $_replace = [
             'APP_KEY=' . str_random(32),
-            'APP_URL=' . $app_url,
         ];
         $envExample = file_get_contents($envSampleFile);
         $env = str_replace($_search, $_replace, $envExample);
         if (file_exists($envFile)) {
             if ($this->confirm('Already have [.env] ,overwrite?')) {
-                @unlink(base_path('.env'));
-                file_put_contents(base_path('.env'), $env);
+                @unlink($envFile);
+                file_put_contents($envFile, $env);
             }
         } else {
-            file_put_contents(base_path('.env'), $env);
+            file_put_contents($envFile, $env);
         }
 
         $this->call('config:cache');
@@ -81,11 +78,11 @@ class InstallCommand extends Command
             $this->warn('Database not found,Creating...');
             copy($sqlSampleFile, $sqlFile);
         }
-        $this->call('key:generate');
         $this->call('jwt:secret');
         $this->call('migrate');
         $this->call('db:seed');
         file_put_contents($lockFile, '');
+        $this->call('config:cache');
         $this->info('Install Complete');
     }
 }
