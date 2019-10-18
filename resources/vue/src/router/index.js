@@ -11,7 +11,7 @@ import 'nprogress/nprogress.css'
 Vue.use(Router)
 
 const router = new Router({
-	mode: 'history',
+	mode: 'hash',
 	base: process.env.BASE_URL,
 	routes,
 })
@@ -19,44 +19,36 @@ router.beforeEach((to, from, next) => {
 	NProgress.start()
 
 	// 初始化站点配置
-	Storage.defaults({
-		app: {},
-	})
 	const app = Storage.get('app')
 	if (!app.app_name) {
 		store.dispatch('loadAppConfig')
 	} else {
 		store.commit('setAppConfig', app)
 	}
-
 	// 初始化登陆信息
 	const token = getToken()
 	const LOGIN_PAGE_NAME = 'login'
+	const user = Storage.get('user')
+
+	if (user.id) {
+		store.commit('setUserId', user.id)
+		store.commit('setUserName', user.name)
+		store.commit('setStatus', user.status)
+		store.commit('setIsAdmin', user.is_admin)
+		store.commit('setAccount', user.account)
+	}
+	if (token && !user.id) {
+		store.dispatch('getUserInfo')
+	}
 	if (token && to.name === LOGIN_PAGE_NAME) {
 		// 已登录且要跳转的页面是登录页
 		next({
 			name: 'dashboard', // 跳转到 Root页
 		})
 	}
+
 	markTitle(to.meta.title)
 	if (to.matched.some(record => record.meta.requiresAuth)) {
-		// 初始化数据
-		Storage.defaults({
-			user: {},
-		})
-		const user = Storage.get('user')
-		if (user.id) {
-			store.commit('setUserId', user.id)
-			store.commit('setUserName', user.name)
-			store.commit('setStatus', user.status)
-			store.commit('setIsAdmin', user.is_admin)
-			store.commit('setAccount', user.account)
-		} else {
-			store.dispatch('getUserInfo')
-		}
-		if (token) {
-			store.commit('setToken', token)
-		}
 		// 判断登录
 		if (!token && to.name !== LOGIN_PAGE_NAME) {
 			// 未登录且要跳转的页面不是登录页

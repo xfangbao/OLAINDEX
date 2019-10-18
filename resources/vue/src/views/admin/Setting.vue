@@ -256,7 +256,6 @@ export default {
 					console.log(res)
 					_this.loading = false
 					_this.$toasted.success('保存成功')
-					this.init()
 				})
 				.catch(err => {
 					console.log(err)
