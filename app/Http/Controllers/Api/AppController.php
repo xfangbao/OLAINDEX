@@ -15,10 +15,10 @@ class AppController extends BaseController
     public function config()
     {
         $setting = Setting::query()
-            ->select(['name','value'])
-            ->get()->toArray();
+            ->select(['name', 'value'])
+            ->get();
         $settingData = [];
-        foreach ($setting as $detail) {
+        foreach ($setting->toArray() as $detail) {
             $settingData[$detail['name']] = $detail['value'];
         }
         return $this->returnData($settingData);

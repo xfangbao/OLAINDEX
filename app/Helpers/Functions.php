@@ -101,3 +101,39 @@ if (!function_exists('flash_message')) {
         \Session::put('alertType', $alertType);
     }
 }
+if (!function_exists('setting')) {
+    /**
+     * 获取设置
+     * @param $key
+     * @param string $default
+     * @return mixed
+     */
+    function setting($key = '', $default = '')
+    {
+        $setting = \Cache::remember('settings', 60 * 60 * 2, static function () {
+            try {
+                $setting = \App\Models\Setting::all();
+            } catch (Exception $e) {
+                return [];
+            }
+            $data = [];
+            foreach ($setting->toArray() as $detail) {
+                $data[$detail['name']] = $detail['value'];
+            }
+            return $data;
+        });
+        $setting = collect($setting);
+        return $key ? $setting->get($key, $default) : $setting->all();
+    }
+}
+if (!function_exists('install_path')) {
+    /**
+     * 安装路径
+     * @param string $path
+     * @return string
+     */
+    function install_path($path = '')
+    {
+        return storage_path('install' . ($path ? DIRECTORY_SEPARATOR . $path : $path));
+    }
+}

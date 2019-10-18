@@ -65,7 +65,7 @@ _axios.interceptors.response.use(
 					// 退出登录 todo
 					store.commit('clearAll')
 					router.push({
-						name: 'Login',
+						name: 'login',
 					})
 					break
 
