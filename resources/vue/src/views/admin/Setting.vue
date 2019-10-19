@@ -8,15 +8,20 @@
 				<b-tabs pills content-class="mt-3">
 					<b-tab title="基本设置" active>
 						<b-form @submit="onSubmit">
-							<b-form-group id="input-basic-1" label="站点名称" label-for="basic-1">
+							<b-form-group id="input-basic-0" label="站点名称" label-for="basic-0">
 								<b-form-input
-									id="input-1"
+									id="input-0"
 									v-model="form.site_name"
 									type="text"
 									placeholder="站点名称"
 								></b-form-input>
 							</b-form-group>
-
+							<b-form-group id="input-basic-1" label="本地模式（二选一）" label-for="basic-1">
+								<b-form-radio-group v-model="form.is_local" name="radio-is_local" id="basic-1">
+									<b-form-radio value="0">关闭</b-form-radio>
+									<b-form-radio value="1">开启</b-form-radio>
+								</b-form-radio-group>
+							</b-form-group>
 							<b-form-group id="input-basic-2" label="显示目录" label-for="basic-2">
 								<b-form-input
 									id="basic-2"
@@ -34,7 +39,7 @@
 								<b-form-input id="basic-3" v-model="form.expires" placeholder="缓存时间"></b-form-input>
 							</b-form-group>
 							<b-form-group id="input-basic-4" label="开启搜索" label-for="basic-4">
-								<b-form-radio-group v-model="form.open_search" name="radio-sub-component" id="basic-4">
+								<b-form-radio-group v-model="form.open_search" name="radio-open_search" id="basic-4">
 									<b-form-radio value="0">关闭</b-form-radio>
 									<b-form-radio value="1">开启</b-form-radio>
 								</b-form-radio-group>
@@ -217,6 +222,7 @@ export default {
 		loading: false,
 		form: {
 			site_name: 'OLAINDEX',
+			is_local: 0,
 			root_path: '/share',
 			expires: '1800',
 			open_search: 0,

@@ -21,22 +21,16 @@ class InstallCommand extends Command
     protected $description = 'Install App';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
+        $canWritable = is_writable(storage_path());
+        if (!$canWritable) {
+            $this->warn('Please make sure the [storage] path can write!');
+        }
         $lockFile = install_path('install.lock');
         if (file_exists($lockFile)) {
             $this->warn('Already Installed!');
@@ -83,6 +77,8 @@ class InstallCommand extends Command
         $this->call('db:seed');
         file_put_contents($lockFile, '');
         $this->call('config:cache');
-        $this->info('Install Complete');
+        $this->info('default name: admin');
+        $this->info('default password: 123456');
+        $this->info('Install Complete!');
     }
 }
