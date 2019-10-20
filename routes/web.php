@@ -11,4 +11,6 @@
 |
 */
 
-Route::get('/{any}', 'SpaController')->where('any', '.*');
+// hash模式首页
+Route::get('/', 'SpaController');
+//Route::get('/{any}', 'SpaController')->where('any', '.*');

@@ -1,47 +1,45 @@
 <template>
-	<div id="page-login">
-		<b-container class="bg-white">
-			<b-row style="height:5rem;"></b-row>
-			<b-row class="justify-content-center">
-				<b-col md="6">
-					<p class="h1 text-center mb-4">OLAINDEX</p>
-					<b-card bg-variant="light" class="shadow border-0" header-class="border-bottom-0">
-						<template v-slot:header>
-							<i class="ri-lock-fill"></i> 登陆
-						</template>
-						<b-card-body>
-							<b-form @submit="login">
-								<b-form-group label="用户名" label-for="name">
-									<b-form-input
-										id="name"
-										v-model="form.name"
-										type="text"
-										required
-										placeholder="请输入用户名"
-										ref="name"
-									></b-form-input>
-								</b-form-group>
-								<b-form-group label="请输入密码" label-for="name">
-									<b-form-input
-										id="password"
-										v-model="form.password"
-										type="password"
-										required
-										placeholder="请输入密码"
-									></b-form-input>
-								</b-form-group>
+	<b-container class="bg-white">
+		<b-row style="height:5rem;"></b-row>
+		<b-row class="justify-content-center">
+			<b-col md="6">
+				<p class="h1 text-center mb-4">OLAINDEX</p>
+				<b-card bg-variant="light" class="shadow border-0" header-class="border-bottom-0">
+					<template v-slot:header>
+						<i class="ri-lock-fill"></i> 登陆
+					</template>
+					<b-card-body>
+						<b-form @submit="login">
+							<b-form-group label="用户名" label-for="name">
+								<b-form-input
+									id="name"
+									v-model="form.name"
+									type="text"
+									required
+									placeholder="请输入用户名"
+									ref="name"
+								></b-form-input>
+							</b-form-group>
+							<b-form-group label="请输入密码" label-for="name">
+								<b-form-input
+									id="password"
+									v-model="form.password"
+									type="password"
+									required
+									placeholder="请输入密码"
+								></b-form-input>
+							</b-form-group>
 
-								<b-button type="submit" variant="primary">
-									<b-spinner small v-show="loading"></b-spinner>
-									<span class="mx-2">登录</span>
-								</b-button>
-							</b-form>
-						</b-card-body>
-					</b-card>
-				</b-col>
-			</b-row>
-		</b-container>
-	</div>
+							<b-button type="submit" variant="primary">
+								<b-spinner small v-show="loading"></b-spinner>
+								<span class="mx-2">登录</span>
+							</b-button>
+						</b-form>
+					</b-card-body>
+				</b-card>
+			</b-col>
+		</b-row>
+	</b-container>
 </template>
 <script>
 import { mapActions } from 'vuex'

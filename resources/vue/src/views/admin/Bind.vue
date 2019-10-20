@@ -1,0 +1,60 @@
+<template>
+	<b-card bg-variant="light" class="mb-3" no-body>
+		<template v-slot:header>
+			<i class="ri-window-fill"></i> 绑定设置
+		</template>
+		<b-card-body>
+			<b-form @submit="onSubmit">
+				<b-form-group id="input-basic-0" label="账号类型" label-for="basic-0">
+					<b-form-select
+						v-model="form.account_type"
+						:options="[{ value: 0, text: '国内版' }, { value: 1, text: '通用版' }]"
+					>
+						<template v-slot:first>
+							<option :value="null" disabled>-- 请选择账号类型 --</option>
+						</template>
+					</b-form-select>
+				</b-form-group>
+				<b-form-group id="input-basic-1" label="client_id" label-for="basic-1">
+					<b-form-input id="basic-1" v-model="form.client_id" type="text"></b-form-input>
+				</b-form-group>
+				<b-form-group id="input-basic-2" label="client_secret" label-for="basic-2">
+					<b-form-input id="basic-2" v-model="form.client_secret" type="text"></b-form-input>
+				</b-form-group>
+				<b-form-group id="input-basic-3" label="回调地址" label-for="basic-3">
+					<b-form-input id="basic-1" v-model="form.redirect_uri" type="text"></b-form-input>
+				</b-form-group>
+
+				<b-button type="submit" variant="primary">
+					<b-spinner small v-show="loading"></b-spinner>
+					<span class="mx-2">保存</span>
+				</b-button>
+			</b-form>
+		</b-card-body>
+	</b-card>
+</template>
+<script>
+export default {
+	name: 'page-bind',
+	data: () => ({
+		loading: false,
+		form: {
+			client_id: '',
+			client_secret: '',
+			redirect_uri: '',
+			account_type: null,
+		},
+	}),
+	methods: {
+		onSubmit(e) {
+			e.preventDefault()
+			let _this = this
+			_this.loading = true
+			setTimeout(function() {
+				_this.loading = false
+				_this.$toasted.success('保存成功')
+			}, 1000)
+		},
+	},
+}
+</script>

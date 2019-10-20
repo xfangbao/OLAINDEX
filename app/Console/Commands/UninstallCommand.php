@@ -21,21 +21,11 @@ class UninstallCommand extends Command
     protected $description = 'Uninstall App';
 
     /**
-     * Create a new command instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
      */
-    public function handle()
+    public function handle(): void
     {
         $lockFile = install_path('install.lock');
         $envFile = base_path('.env');

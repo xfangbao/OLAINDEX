@@ -52,6 +52,15 @@ export default [
 				component: loadView('admin/Index'),
 			},
 			{
+				path: '/admin/bind',
+				name: 'bind',
+				meta: {
+					title: '绑定',
+					requiresAuth: true,
+				},
+				component: loadView('admin/Bind'),
+			},
+			{
 				path: '/admin/setting',
 				name: 'setting',
 				meta: {
