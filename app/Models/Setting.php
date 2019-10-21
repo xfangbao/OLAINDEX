@@ -25,6 +25,11 @@ class Setting extends Model
     use HelperModel;
 
     /**
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * @var array
      */
     protected $fillable = ['name', 'value'];

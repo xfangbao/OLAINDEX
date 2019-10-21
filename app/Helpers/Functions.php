@@ -104,7 +104,7 @@ if (!function_exists('flash_message')) {
 if (!function_exists('setting')) {
     /**
      * 获取设置
-     * @param $key
+     * @param string $key
      * @param string $default
      * @return mixed
      */
@@ -126,6 +126,19 @@ if (!function_exists('setting')) {
         return $key ? $setting->get($key, $default) : $setting->all();
     }
 }
+if (!function_exists('setting_set')) {
+    /**
+     * 更新设置
+     * @param string $key
+     * @param string $value
+     * @return mixed
+     */
+    function setting_set($key = '', $value = '')
+    {
+        $value = is_array($value) ? json_encode($value) : $value;
+        return \App\Models\Setting::query()->updateOrCreate(['name' => $key], ['value' => $value]);
+    }
+}
 if (!function_exists('install_path')) {
     /**
      * 安装路径
@@ -135,5 +148,74 @@ if (!function_exists('install_path')) {
     function install_path($path = '')
     {
         return storage_path('install' . ($path ? DIRECTORY_SEPARATOR . $path : $path));
+    }
+}
+if (!function_exists('refresh_token')) {
+    /**
+     * 刷新账户token
+     * @param \App\Models\Account $account
+     * @param bool $force
+     * @return bool
+     * @throws \ErrorException
+     */
+    function refresh_token($account, $force = false)
+    {
+        if (!$account) {
+            return false;
+        }
+        $existingRefreshToken = $account->refresh_token;
+        if (!$force) {
+            $expires = strtotime($account->access_token_expires);
+            $hasExpired = $expires - time() <= 30 * 10; // 半小时刷新token
+            if (!$hasExpired) {
+                return false;
+            }
+        }
+        $token = \App\Service\AuthorizeService::init()->bind($account->toArray())->refreshAccessToken($existingRefreshToken);
+        $token = $token->toArray();
+        $access_token = array_get($token, 'access_token');
+        $refresh_token = array_get($token, 'refresh_token');
+        $expires = array_get($token, 'expires_in') !== 0 ? time() + array_get($token, 'expires_in') : 0;
+        $data = [
+            'access_token' => $access_token,
+            'refresh_token' => $refresh_token,
+            'access_token_expires' => date('Y-m-d H:i:s', $expires),
+        ];
+        $saved = $account->update($data);
+        if (!$saved) {
+            return false;
+        }
+        return true;
+    }
+}
+if (!function_exists('refresh_account')) {
+    /**
+     * 刷新账户信息
+     * @param \App\Models\Account $account
+     * @return bool
+     * @throws ErrorException
+     */
+    function refresh_account($account)
+    {
+        if (!$account) {
+            return false;
+        }
+        refresh_token($account);
+        $response = \App\Service\OneDrive::init()->bind($account->toArray())->getDriveInfo();
+        if ($response['errno'] === 0) {
+            $extend = array_get($response, 'data');
+            $account->account_email = array_get($extend, 'owner.user.email', '');
+            $account->extend = $extend;
+            $account->status = \App\Models\Account::STATUS_ON;
+            $account->save();
+        } else {
+            $response = \App\Service\OneDrive::init()->bind($account->toArray())->getAccountInfo();
+            $extend = array_get($response, 'data');
+            $account->account_email = $response['errno'] === 0 ? array_get($extend, 'userPrincipalName') : '';
+            $account->extend = $extend;
+            $account->status = \App\Models\Account::STATUS_OFF;
+            $account->save();
+        }
+        return true;
     }
 }

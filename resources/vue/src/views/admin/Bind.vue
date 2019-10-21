@@ -34,6 +34,7 @@
 	</b-card>
 </template>
 <script>
+import { bind } from '@/api/account'
 export default {
 	name: 'page-bind',
 	data: () => ({
@@ -50,10 +51,17 @@ export default {
 			e.preventDefault()
 			let _this = this
 			_this.loading = true
-			setTimeout(function() {
-				_this.loading = false
-				_this.$toasted.success('保存成功')
-			}, 1000)
+			_this.form.redirect = window.location.href
+			bind(_this.form)
+				.then(res => {
+					let redirect = res.data.redirect
+					_this.loading = false
+					window.location.href = redirect
+				})
+				.catch(err => {
+					console.log(err)
+					_this.loading = false
+				})
 		},
 	},
 }

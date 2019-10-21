@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $refresh_token
  * @property string|null $access_token_expires
  * @property int $status
+ * @property mixed $extend
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Account newModelQuery()
@@ -35,6 +36,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Account whereRedirectUri($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Account whereRefreshToken($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Account whereStatus($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Account whereExtend($value)
  * @method static \Illuminate\Database\Eloquent\Builder|\App\Models\Account whereUpdatedAt($value)
  * @mixin \Eloquent
  */
@@ -55,5 +57,27 @@ class Account extends Model
         'refresh_token',
         'access_token_expires',
         'status',
+        'extend'
     ];
+
+    /**
+     * 如果 ext 是 json 则转成数组
+     *
+     * @param $value
+     * @return mixed
+     */
+    public function getExtendAttribute($value)
+    {
+        return is_json($value) ? json_decode($value, true) : $value;
+    }
+
+    /**
+     * 如果 ext 是数组 则转成 json
+     *
+     * @param $value
+     */
+    public function setExtendAttribute($value)
+    {
+        $this->attributes['extend'] = is_array($value) ? json_encode($value) : $value;
+    }
 }

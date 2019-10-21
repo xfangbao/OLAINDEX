@@ -20,3 +20,8 @@ Route::get('/settings', 'SettingController@index');
 Route::post('/settings', 'SettingController@update');
 
 Route::get('/app/config', 'AppController@config');
+
+Route::post('/account/apply', 'AccountController@apply');
+Route::post('/account/bind', 'AccountController@bind');
+Route::post('/account/unbind', 'AccountController@unbind');
+Route::get('/account/callback', 'AccountController@callback');

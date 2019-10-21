@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Events\SettingEvent;
 use App\Http\Controllers\BaseController;
-use App\Listeners\SettingListener;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 

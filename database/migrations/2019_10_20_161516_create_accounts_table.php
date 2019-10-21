@@ -24,6 +24,7 @@ class CreateAccountsTable extends Migration
             $table->text('refresh_token')->nullable()->comment('refresh_token');
             $table->timestamp('access_token_expires')->nullable()->comment('超时时间');
             $table->boolean('status')->default(1)->comment('状态');
+            $table->mediumText('extend')->nullable()->comment('扩展信息');
             $table->timestamps();
         });
     }
