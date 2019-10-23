@@ -70,7 +70,7 @@ class AccountController extends BaseController
 
         $account = Account::query()->create($data);
         if (!$account) {
-            return $this->returnError([], 500, '保存账号失败，请稍后重试');
+            return $this->returnError([], 500, '绑定账号失败，请稍后重试');
         }
         setting_set('account_id', $account->id);
         $slug = str_random();
@@ -96,7 +96,7 @@ class AccountController extends BaseController
         setting_set('account_id', 0);
         $account = Account::query()->find($account_id);
         if (!$account->delete()) {
-            return $this->returnError([], 500, '删除账号失败，请稍后重试');
+            return $this->returnError([], 500, '解绑账号失败，请稍后重试');
         }
 
         return $this->returnData([]);
