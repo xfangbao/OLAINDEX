@@ -79,8 +79,8 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
         ],
-        "check-style": "phpcs -p --standard=PSR2 app/",
-        "fix-style": "phpcbf -p --standard=PSR2 app/",
+        "cs-check": "phpcs -p --standard=PSR2 app/",
+        "cs-fix": "phpcbf -p --standard=PSR2 app/",
         "install-app": "php artisan install",
         "uninstall-app": "php artisan uninstall"
     },

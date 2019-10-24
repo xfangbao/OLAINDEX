@@ -3,7 +3,6 @@
 
 namespace App\Http\Controllers\Api;
 
-
 use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 
@@ -41,5 +40,4 @@ class SourceController extends BaseController
     public function download(Request $request)
     {
     }
-
 }
