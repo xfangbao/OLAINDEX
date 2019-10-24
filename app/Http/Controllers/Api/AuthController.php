@@ -9,6 +9,11 @@ use App\Models\User;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
 
+/**
+ * 登录授权
+ * Class AuthController
+ * @package App\Http\Controllers\Api
+ */
 class AuthController extends BaseController
 {
     /**

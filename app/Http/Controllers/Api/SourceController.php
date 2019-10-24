@@ -7,6 +7,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 
+/**
+ * 资源接口
+ * Class SourceController
+ * @package App\Http\Controllers\Api
+ */
 class SourceController extends BaseController
 {
     /**

@@ -6,6 +6,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\BaseController;
 use App\Models\Setting;
 
+/**
+ * 应用基础
+ * Class AppController
+ * @package App\Http\Controllers\Api
+ */
 class AppController extends BaseController
 {
     /**

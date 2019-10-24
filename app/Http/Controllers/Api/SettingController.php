@@ -8,6 +8,11 @@ use App\Http\Controllers\BaseController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 
+/**
+ * 后台设置
+ * Class SettingController
+ * @package App\Http\Controllers\Api
+ */
 class SettingController extends BaseController
 {
     /**

@@ -8,6 +8,11 @@ use App\Models\Account;
 use App\Service\AuthorizeService;
 use Illuminate\Http\Request;
 
+/**
+ * 账号授权
+ * Class AccountController
+ * @package App\Http\Controllers\Api
+ */
 class AccountController extends BaseController
 {
     /**
