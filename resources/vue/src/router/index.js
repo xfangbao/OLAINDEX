@@ -20,7 +20,7 @@ router.beforeEach((to, from, next) => {
 
 	// 初始化站点配置
 	const app = Storage.get('app')
-	if (!app.app_name) {
+	if (!app) {
 		store.dispatch('loadAppConfig')
 	} else {
 		store.commit('setAppConfig', app)
@@ -30,14 +30,14 @@ router.beforeEach((to, from, next) => {
 	const LOGIN_PAGE_NAME = 'login'
 	const user = Storage.get('user')
 
-	if (user.id) {
+	if (user) {
 		store.commit('setUserId', user.id)
 		store.commit('setUserName', user.name)
 		store.commit('setStatus', user.status)
 		store.commit('setIsAdmin', user.is_admin)
 		store.commit('setAccount', user.account)
 	}
-	if (token && !user.id) {
+	if (token && !user) {
 		store.dispatch('getUserInfo')
 	}
 	if (token && to.name === LOGIN_PAGE_NAME) {

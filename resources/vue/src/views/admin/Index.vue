@@ -1,8 +1,6 @@
 <template>
 	<b-card bg-variant="light" class="mb-3" no-body>
-		<template v-slot:header>
-			<i class="ri-window-fill"></i> 控制台
-		</template>
+		<template v-slot:header> <i class="ri-window-fill"></i> 控制台 </template>
 		<b-card-body>
 			<div class="mb-3">
 				<p>网盘容量</p>

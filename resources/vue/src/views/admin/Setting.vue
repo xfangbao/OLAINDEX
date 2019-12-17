@@ -1,8 +1,6 @@
 <template>
 	<b-card bg-variant="light" class="mb-3" no-body>
-		<template v-slot:header>
-			<i class="ri-settings-fill"></i> 设置
-		</template>
+		<template v-slot:header> <i class="ri-settings-fill"></i> 设置 </template>
 		<b-card-body>
 			<b-tabs pills content-class="mt-3">
 				<b-tab title="基本设置" active>
