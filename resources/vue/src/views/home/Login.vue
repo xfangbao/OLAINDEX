@@ -5,9 +5,7 @@
 			<b-col md="6">
 				<p class="h1 text-center mb-4">OLAINDEX</p>
 				<b-card bg-variant="light" class="shadow border-0" header-class="border-bottom-0">
-					<template v-slot:header>
-						<i class="ri-lock-fill"></i> 登陆
-					</template>
+					<template v-slot:header> <i class="ri-lock-fill"></i> 登陆 </template>
 					<b-card-body>
 						<b-form @submit="login">
 							<b-form-group label="用户名" label-for="name">

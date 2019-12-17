@@ -1,14 +1,15 @@
 <template>
 	<b-card bg-variant="light" class="mb-3" no-body>
-		<template v-slot:header>
-			<i class="ri-window-fill"></i> 绑定设置
-		</template>
+		<template v-slot:header> <i class="ri-window-fill"></i> 绑定设置 </template>
 		<b-card-body>
 			<b-form @submit="onSubmit">
 				<b-form-group id="input-basic-0" label="账号类型" label-for="basic-0">
 					<b-form-select
 						v-model="form.account_type"
-						:options="[{ value: 0, text: '国内版' }, { value: 1, text: '通用版' }]"
+						:options="[
+							{ value: 0, text: '国内版' },
+							{ value: 1, text: '通用版' },
+						]"
 					>
 						<template v-slot:first>
 							<option :value="null" disabled>-- 请选择账号类型 --</option>
