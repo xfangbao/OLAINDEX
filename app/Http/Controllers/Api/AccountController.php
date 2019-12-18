@@ -110,7 +110,7 @@ class AccountController extends BaseController
     /**
      * 回调
      * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @return mixed
      * @throws \ErrorException
      */
     public function callback(Request $request)

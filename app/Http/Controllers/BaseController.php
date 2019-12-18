@@ -71,9 +71,7 @@ class BaseController extends Controller
     public function paginate($items = [], $perPage = 10)
     {
         $pageStart = request()->get('page', 1);
-        // Start displaying items from this number;
         $offSet = ($pageStart * $perPage) - $perPage;
-        // Get only the items you need using array_slice
         $itemsForCurrentPage = collect($items)->lazy()->slice($offSet, $perPage);
         $data = new LengthAwarePaginator(
             $itemsForCurrentPage,
@@ -93,7 +91,7 @@ class BaseController extends Controller
                 'prev' => $paginated['prev_page_url'] ?? '',
                 'next' => $paginated['next_page_url'] ?? '',
             ],
-            'meta' => \Arr::except($paginated, [
+            'meta' => array_except($paginated, [
                 'data',
                 'first_page_url',
                 'last_page_url',
