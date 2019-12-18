@@ -149,16 +149,17 @@ if (!function_exists('refresh_setting')) {
     {
         $settingData = [];
         try {
-            $setting = \App\Models\Setting::all();
+            $settingModel = \App\Models\Setting::all();
         } catch (Exception $e) {
-            $setting = [];
+            $settingModel = [];
         }
-        foreach ($setting->toArray() as $detail) {
+        foreach ($settingModel->toArray() as $detail) {
             $settingData[$detail['name']] = $detail['value'];
         }
-        $setting = \Cache::forever('settings', $settingData);
 
-        return collect($setting)->all();
+        \Cache::forever('settings', $settingData);
+
+        return collect($settingData)->toArray();
     }
 }
 if (!function_exists('install_path')) {
