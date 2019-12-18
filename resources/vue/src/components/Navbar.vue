@@ -42,9 +42,9 @@
 							<i class="ri-user-5-fill"></i>
 							{{ username }}
 						</template>
-						<b-dropdown-item :to="{ name: 'dashboard' }">后台管理</b-dropdown-item>
-						<b-dropdown-item :to="{ name: 'home' }">个人资料</b-dropdown-item>
-						<b-dropdown-item :to="{ name: 'home' }">前台</b-dropdown-item>
+						<b-dropdown-item :to="{ name: 'dashboard' }">管理</b-dropdown-item>
+						<b-dropdown-item :to="{ name: 'home' }">资料</b-dropdown-item>
+						<b-dropdown-item :to="{ name: 'home' }">展示</b-dropdown-item>
 						<b-dropdown-item @click="logout">退出</b-dropdown-item>
 					</b-nav-item-dropdown>
 				</b-navbar-nav>
