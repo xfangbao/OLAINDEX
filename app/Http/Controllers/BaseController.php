@@ -93,7 +93,7 @@ class BaseController extends Controller
                 'prev' => $paginated['prev_page_url'] ?? '',
                 'next' => $paginated['next_page_url'] ?? '',
             ],
-            'meta' => \Arr::except($paginated, [
+            'meta' => array_except($paginated, [
                 'data',
                 'first_page_url',
                 'last_page_url',

@@ -30,7 +30,7 @@ class SettingListener
 
         $setting = $event->setting;
         // 刷新缓存
-        \Cache::add('settings', $setting, 7200);
+        \Cache::forever('settings', $setting);
 
         app('log')->info('refresh-settings', $setting);
     }
