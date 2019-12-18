@@ -71,9 +71,7 @@ class BaseController extends Controller
     public function paginate($items = [], $perPage = 10)
     {
         $pageStart = request()->get('page', 1);
-        // Start displaying items from this number;
         $offSet = ($pageStart * $perPage) - $perPage;
-        // Get only the items you need using array_slice
         $itemsForCurrentPage = collect($items)->lazy()->slice($offSet, $perPage);
         $data = new LengthAwarePaginator(
             $itemsForCurrentPage,

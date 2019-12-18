@@ -3,7 +3,6 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Events\SettingEvent;
 use App\Http\Controllers\BaseController;
 use App\Models\Setting;
 use Illuminate\Http\Request;
@@ -64,8 +63,6 @@ class SettingController extends BaseController
         }
         (new Setting)->updateBatch($editData);
 
-        event(new SettingEvent($originData));
-
-        return $this->returnData($data);
+        return $this->returnData(refresh_setting());
     }
 }

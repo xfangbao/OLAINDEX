@@ -136,7 +136,29 @@ if (!function_exists('setting_set')) {
     function setting_set($key = '', $value = '')
     {
         $value = is_array($value) ? json_encode($value) : $value;
-        return \App\Models\Setting::query()->updateOrCreate(['name' => $key], ['value' => $value]);
+        \App\Models\Setting::query()->updateOrCreate(['name' => $key], ['value' => $value]);
+        return refresh_setting();
+    }
+}
+if (!function_exists('refresh_setting')) {
+    /**
+     * 刷新设置缓存
+     * @return array
+     */
+    function refresh_setting()
+    {
+        $settingData = [];
+        try {
+            $setting = \App\Models\Setting::all();
+        } catch (Exception $e) {
+            $setting = [];
+        }
+        foreach ($setting->toArray() as $detail) {
+            $settingData[$detail['name']] = $detail['value'];
+        }
+        $setting = \Cache::forever('settings', $settingData);
+
+        return collect($setting)->all();
     }
 }
 if (!function_exists('install_path')) {
