@@ -30,7 +30,7 @@ router.beforeEach((to, from, next) => {
 	const token = getToken()
 	const LOGIN_PAGE_NAME = 'login'
 	const user = Storage.get('user')
-	if (isEmpty(user)) {
+	if (token && isEmpty(user)) {
 		store.dispatch('getUserInfo')
 	} else {
 		store.commit('setUserId', user.id)

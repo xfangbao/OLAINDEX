@@ -120,3 +120,19 @@ export function isEmpty(obj) {
 	}
 	return false
 }
+/**
+ *
+ * @param {mixed} value
+ * @param {mixed} defaultValue
+ */
+export function defaultValue(value, defaultValue) {
+	switch (value) {
+		case 'null':
+		case 'undefined':
+		case null:
+		case undefined:
+			return defaultValue
+		default:
+			return value
+	}
+}
