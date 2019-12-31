@@ -11,6 +11,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
 
+/**
+ * 安装流程
+ * Class InstallController
+ * @package App\Http\Controllers\Api
+ */
 class InstallController extends BaseController
 {
     public function index()
