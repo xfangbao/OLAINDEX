@@ -3,7 +3,7 @@ import Router from 'vue-router'
 import store from '../store'
 import routes from './routes'
 import Storage from '../service/store'
-import { markTitle } from '../utils'
+import { markTitle, isEmpty } from '../utils'
 import { getToken } from '../utils/auth'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
@@ -19,8 +19,9 @@ router.beforeEach((to, from, next) => {
 	NProgress.start()
 
 	// 初始化站点配置
+	Storage.defaults({ app: {}, user: {} })
 	const app = Storage.get('app')
-	if (!app) {
+	if (isEmpty(app)) {
 		store.dispatch('loadAppConfig')
 	} else {
 		store.commit('setAppConfig', app)
@@ -29,16 +30,14 @@ router.beforeEach((to, from, next) => {
 	const token = getToken()
 	const LOGIN_PAGE_NAME = 'login'
 	const user = Storage.get('user')
-
-	if (user) {
+	if (isEmpty(user)) {
+		store.dispatch('getUserInfo')
+	} else {
 		store.commit('setUserId', user.id)
 		store.commit('setUserName', user.name)
 		store.commit('setStatus', user.status)
 		store.commit('setIsAdmin', user.is_admin)
 		store.commit('setAccount', user.account)
-	}
-	if (token && !user) {
-		store.dispatch('getUserInfo')
 	}
 	if (token && to.name === LOGIN_PAGE_NAME) {
 		// 已登录且要跳转的页面是登录页
