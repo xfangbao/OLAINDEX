@@ -81,7 +81,7 @@ class AccountController extends BaseController
         $slug = str_random();
         $accountCache = $account->toArray();
         $accountCache = array_merge($accountCache, ['redirect' => $request->get('redirect')]);
-        \Cache::add($slug, $accountCache, 15 * 60);
+        \Cache::add($slug, $accountCache, 15 * 60); //15分钟内需完成绑定否则失效
         $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($slug);
 
         return $this->returnData([
@@ -141,5 +141,15 @@ class AccountController extends BaseController
         refresh_account($account);
         $redirect = array_get($accountCache, 'redirect', '/');
         return redirect()->away($redirect);
+    }
+
+    /**
+     * 账户详情
+     * @param Request $request
+     * @return mixed
+     */
+    public function info(Request $request)
+    {
+
     }
 }
