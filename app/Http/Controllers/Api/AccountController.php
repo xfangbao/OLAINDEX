@@ -66,11 +66,13 @@ class AccountController extends BaseController
         if ($validator->fails()) {
             return $this->errorBadRequest($validator);
         }
+        $redirect_uri = $request->get('redirect_uri');
+        $redirect = $request->get('redirect');
         $data = [
             'account_type' => $request->get('account_type'),
             'client_id' => $request->get('client_id'),
             'client_secret' => $request->get('client_secret'),
-            'redirect_uri' => $request->get('redirect_uri')
+            'redirect_uri' => $redirect_uri
         ];
 
         $account = Account::query()->create($data);
@@ -80,9 +82,16 @@ class AccountController extends BaseController
         setting_set('account_id', $account->id);
         $slug = str_random();
         $accountCache = $account->toArray();
-        $accountCache = array_merge($accountCache, ['redirect' => $request->get('redirect')]);
+        $accountCache = array_merge($accountCache, ['redirect' => $redirect]);
         \Cache::add($slug, $accountCache, 15 * 60); //15分钟内需完成绑定否则失效
-        $state = $request->getHttpHost() . '/api/account/callback#' . $slug; // 拼接state
+        $state = $slug;
+        if (str_contains($redirect_uri, 'olaindex.github.io')) {
+            $state = base64_encode(json_encode([
+                $slug,
+                $request->getSchemeAndHttpHost() . '/api/account/callback'
+            ])); // 拼接state
+        }
+
         $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($state);
 
         return $this->success([
@@ -118,10 +127,6 @@ class AccountController extends BaseController
     {
         $state = $request->get('state', '');
         $code = $request->get('code', '');
-
-        if (str_contains($state, '#')) {
-            $state = str_after($state, '#');
-        }
 
         if (!$state || !\Cache::has($state)) {
             \Cache::forget($state);
