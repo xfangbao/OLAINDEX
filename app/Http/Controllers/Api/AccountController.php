@@ -44,7 +44,7 @@ class AccountController extends BaseController
             . $redirect_uri . '&allowImplicitFlow=false&ru='
             . urlencode($ru);
         $redirect = 'https://apps.dev.microsoft.com/?deepLink=' . urlencode($deepLink);
-        return $this->returnData([
+        return $this->success([
             'redirect' => $redirect
         ]);
     }
@@ -75,7 +75,7 @@ class AccountController extends BaseController
 
         $account = Account::query()->create($data);
         if (!$account) {
-            return $this->returnError([], 500, '绑定账号失败，请稍后重试');
+            return $this->fail('绑定账号失败，请稍后重试');
         }
         setting_set('account_id', $account->id);
         $slug = str_random();
@@ -84,7 +84,7 @@ class AccountController extends BaseController
         \Cache::add($slug, $accountCache, 15 * 60); //15分钟内需完成绑定否则失效
         $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($slug);
 
-        return $this->returnData([
+        return $this->success([
             'redirect' => $authorizeUrl
         ]);
     }
@@ -101,10 +101,10 @@ class AccountController extends BaseController
         setting_set('account_id', 0);
         $account = Account::query()->find($account_id);
         if (!$account->delete()) {
-            return $this->returnError([], 500, '解绑账号失败，请稍后重试');
+            return $this->fail('解绑账号失败，请稍后重试');
         }
 
-        return $this->returnData([]);
+        return $this->success([]);
     }
 
     /**
@@ -120,7 +120,7 @@ class AccountController extends BaseController
 
         if (!$state || !\Cache::has($state)) {
             \Cache::forget($state);
-            return $this->returnError([], 400, 'Invalid state');
+            return $this->fail('Invalid state');
         }
         $accountCache = \Cache::get($state);
         $token = AuthorizeService::init()->bind($accountCache)->getAccessToken($code);
