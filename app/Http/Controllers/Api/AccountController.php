@@ -82,7 +82,8 @@ class AccountController extends BaseController
         $accountCache = $account->toArray();
         $accountCache = array_merge($accountCache, ['redirect' => $request->get('redirect')]);
         \Cache::add($slug, $accountCache, 15 * 60); //15分钟内需完成绑定否则失效
-        $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($slug);
+        $state = $request->getHttpHost() . '/api/account/callback#' . $slug; // 拼接state
+        $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($state);
 
         return $this->success([
             'redirect' => $authorizeUrl
@@ -117,6 +118,10 @@ class AccountController extends BaseController
     {
         $state = $request->get('state', '');
         $code = $request->get('code', '');
+
+        if (str_contains($state, '#')) {
+            $state = str_after($state, '#');
+        }
 
         if (!$state || !\Cache::has($state)) {
             \Cache::forget($state);
