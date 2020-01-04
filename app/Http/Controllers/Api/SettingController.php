@@ -33,7 +33,7 @@ class SettingController extends BaseController
         foreach ($setting->toArray() as $detail) {
             $settingData[$detail['name']] = $detail['value'];
         }
-        return $this->returnData($settingData);
+        return $this->success($settingData);
     }
 
     /**
@@ -63,6 +63,6 @@ class SettingController extends BaseController
         }
         (new Setting)->updateBatch($editData);
 
-        return $this->returnData(refresh_setting());
+        return $this->success(refresh_setting());
     }
 }

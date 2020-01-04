@@ -18,7 +18,7 @@ class ImageController extends BaseController
     {
         $field = 'olaindex_img';
         if (!$request->hasFile($field)) {
-            return $this->returnError([], 400, '上传文件为空');
+            return $this->fail('上传文件为空');
         }
         $file = $request->file($field);
         $rule = [$field => 'required|max:4096|image'];

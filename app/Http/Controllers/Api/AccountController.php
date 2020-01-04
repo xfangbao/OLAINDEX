@@ -44,7 +44,7 @@ class AccountController extends BaseController
             . $redirect_uri . '&allowImplicitFlow=false&ru='
             . urlencode($ru);
         $redirect = 'https://apps.dev.microsoft.com/?deepLink=' . urlencode($deepLink);
-        return $this->returnData([
+        return $this->success([
             'redirect' => $redirect
         ]);
     }
@@ -66,25 +66,35 @@ class AccountController extends BaseController
         if ($validator->fails()) {
             return $this->errorBadRequest($validator);
         }
+        $redirect_uri = $request->get('redirect_uri');
+        $redirect = $request->get('redirect');
         $data = [
             'account_type' => $request->get('account_type'),
             'client_id' => $request->get('client_id'),
             'client_secret' => $request->get('client_secret'),
-            'redirect_uri' => $request->get('redirect_uri')
+            'redirect_uri' => $redirect_uri
         ];
 
         $account = Account::query()->create($data);
         if (!$account) {
-            return $this->returnError([], 500, '绑定账号失败，请稍后重试');
+            return $this->fail('绑定账号失败，请稍后重试');
         }
         setting_set('account_id', $account->id);
         $slug = str_random();
         $accountCache = $account->toArray();
-        $accountCache = array_merge($accountCache, ['redirect' => $request->get('redirect')]);
-        \Cache::add($slug, $accountCache, 15 * 60);
-        $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($slug);
+        $accountCache = array_merge($accountCache, ['redirect' => $redirect]);
+        \Cache::add($slug, $accountCache, 15 * 60); //15分钟内需完成绑定否则失效
+        $state = $slug;
+        if (str_contains($redirect_uri, 'olaindex.github.io')) {
+            $state = base64_encode(json_encode([
+                $slug,
+                $request->getSchemeAndHttpHost() . '/api/account/callback'
+            ])); // 拼接state
+        }
 
-        return $this->returnData([
+        $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($state);
+
+        return $this->success([
             'redirect' => $authorizeUrl
         ]);
     }
@@ -101,10 +111,10 @@ class AccountController extends BaseController
         setting_set('account_id', 0);
         $account = Account::query()->find($account_id);
         if (!$account->delete()) {
-            return $this->returnError([], 500, '解绑账号失败，请稍后重试');
+            return $this->fail('解绑账号失败，请稍后重试');
         }
 
-        return $this->returnData([]);
+        return $this->success([]);
     }
 
     /**
@@ -120,7 +130,7 @@ class AccountController extends BaseController
 
         if (!$state || !\Cache::has($state)) {
             \Cache::forget($state);
-            return $this->returnError([], 400, 'Invalid state');
+            return $this->fail('Invalid state');
         }
         $accountCache = \Cache::get($state);
         $token = AuthorizeService::init()->bind($accountCache)->getAccessToken($code);
@@ -141,5 +151,15 @@ class AccountController extends BaseController
         refresh_account($account);
         $redirect = array_get($accountCache, 'redirect', '/');
         return redirect()->away($redirect);
+    }
+
+    /**
+     * 账户详情
+     * @param Request $request
+     * @return mixed
+     */
+    public function info(Request $request)
+    {
+
     }
 }

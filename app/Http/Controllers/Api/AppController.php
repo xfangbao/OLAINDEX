@@ -26,6 +26,6 @@ class AppController extends BaseController
         foreach ($setting->toArray() as $detail) {
             $settingData[$detail['name']] = $detail['value'];
         }
-        return $this->returnData($settingData);
+        return $this->success($settingData);
     }
 }

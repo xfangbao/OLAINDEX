@@ -14,7 +14,7 @@ class BaseController extends Controller
      * @param string $message
      * @return \Illuminate\Http\JsonResponse
      */
-    public function returnData($data, $code = 200, $message = 'ok')
+    public function success($data, $code = 200, $message = 'ok')
     {
         return response()->json([
             'code' => $code,
@@ -25,12 +25,12 @@ class BaseController extends Controller
 
     /**
      * 数据返回
-     * @param mixed $data
-     * @param int $code
      * @param string $message
+     * @param int $code
+     * @param mixed $data
      * @return \Illuminate\Http\JsonResponse
      */
-    public function returnError($data, $code = 400, $message = 'fail')
+    public function fail($message, $code = 500, $data = [])
     {
         return response()->json([
             'code' => $code,
@@ -59,7 +59,7 @@ class BaseController extends Controller
                 }
             }
         }
-        return $this->returnError($result, 422, '出现错误了');
+        return $this->fail('出现错误了', 422, $result);
     }
 
     /**

@@ -20,7 +20,7 @@ class SourceController extends BaseController
      */
     public function list(Request $request)
     {
-        return $this->returnData([]);
+        return $this->success([]);
     }
 
     /**
@@ -30,7 +30,7 @@ class SourceController extends BaseController
      */
     public function detail(Request $request)
     {
-        return $this->returnData([]);
+        return $this->success([]);
     }
 
     /**

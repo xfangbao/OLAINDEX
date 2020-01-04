@@ -77,8 +77,8 @@ class InstallCommand extends Command
         $this->call('db:seed');
         file_put_contents($lockFile, '');
         $this->call('config:cache');
-        $this->info('default name: admin');
-        $this->info('default password: 123456');
+        $this->info('default name: [ admin ]');
+        $this->info('default password: [ 123456 ]');
         $this->info('Install Complete!');
     }
 }

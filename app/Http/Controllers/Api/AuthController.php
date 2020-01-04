@@ -44,14 +44,14 @@ class AuthController extends BaseController
         }
         $credentials = $request->only('name', 'password');
         if (!$token = \Auth::guard('api')->attempt($credentials)) {
-            return $this->returnData([], 400, trans('auth.failed'));
+            return $this->success([], 400, trans('auth.failed'));
         }
         $authorization = new Authorization($token);
         \Event::dispatch(new Login('api', $authorization->user(), false));
 
         $token = $authorization->toArray();
 
-        return $this->returnData($token);
+        return $this->success($token);
     }
 
     /**
@@ -62,7 +62,7 @@ class AuthController extends BaseController
     {
         \Auth::guard('api')->logout();
 
-        return $this->returnData(['success']);
+        return $this->success(['success']);
     }
 
     /**
@@ -74,7 +74,7 @@ class AuthController extends BaseController
         /* @var $user User */
         $user = \Auth::guard('api')->user();
 
-        return $this->returnData($user->toArray());
+        return $this->success($user->toArray());
     }
 
     /**
@@ -87,6 +87,6 @@ class AuthController extends BaseController
         $authorization = new Authorization(\Auth::refresh());
         $token = $authorization->toArray();
 
-        return $this->returnData($token);
+        return $this->success($token);
     }
 }
