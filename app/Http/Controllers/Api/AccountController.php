@@ -152,12 +152,13 @@ class AccountController extends BaseController
 
     /**
      * 账户详情
-     * @param Request $request
      * @return mixed
      */
-    public function info(Request $request)
+    public function info()
     {
-
-
+        $account_id = setting('account_id');
+        $account = Account::find($account_id);
+        $info = $account->extend;
+        return $this->success($info);
     }
 }

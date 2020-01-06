@@ -25,3 +25,4 @@ Route::post('/account/apply', 'AccountController@apply');
 Route::post('/account/bind', 'AccountController@bind');
 Route::post('/account/unbind', 'AccountController@unbind');
 Route::get('/account/callback', 'AccountController@callback');
+Route::get('/account/info', 'AccountController@info');

@@ -49,6 +49,7 @@ export default {
 		},
 	}),
 	methods: {
+		// todo:已绑定账号，跳转首页
 		onSubmit(e) {
 			e.preventDefault()
 			let _this = this

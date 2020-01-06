@@ -11,3 +11,7 @@ export function unbind(params) {
 export function apply(params) {
 	return axios.post('/api/account/apply', params)
 }
+
+export function info(params) {
+	return axios.get('/api/account/info', params)
+}
