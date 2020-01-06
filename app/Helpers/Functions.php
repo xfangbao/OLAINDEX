@@ -198,13 +198,11 @@ if (!function_exists('refresh_token')) {
         $token = $token->toArray();
         $access_token = array_get($token, 'access_token');
         $refresh_token = array_get($token, 'refresh_token');
-        $expires = array_get($token, 'expires_in') !== 0 ? time() + array_get($token, 'expires_in') : 0;
-        $data = [
-            'access_token' => $access_token,
-            'refresh_token' => $refresh_token,
-            'access_token_expires' => date('Y-m-d H:i:s', $expires),
-        ];
-        $saved = $account->update($data);
+        $expires = array_has($token, 'expires_in') ? time() + array_get($token, 'expires_in') : 0;
+        $account->access_token = $access_token;
+        $account->refresh_token = $refresh_token;
+        $account->access_token_expires = date('Y-m-d H:i:s', $expires);
+        $saved = $account->save();
         if (!$saved) {
             return false;
         }

@@ -16,10 +16,10 @@
 						</template>
 					</b-form-select>
 				</b-form-group>
-				<b-form-group id="input-basic-1" label="client_id" label-for="basic-1">
+				<b-form-group id="input-basic-1" label="client_id" label-for="basic-1" description="申请可不填写">
 					<b-form-input id="basic-1" v-model="form.client_id" type="text"></b-form-input>
 				</b-form-group>
-				<b-form-group id="input-basic-2" label="client_secret" label-for="basic-2">
+				<b-form-group id="input-basic-2" label="client_secret" label-for="basic-2" description="申请可不填写">
 					<b-form-input id="basic-2" v-model="form.client_secret" type="text"></b-form-input>
 				</b-form-group>
 				<b-form-group id="input-basic-3" label="回调地址" label-for="basic-3">
@@ -30,12 +30,13 @@
 					<b-spinner small v-show="loading"></b-spinner>
 					<span class="mx-2">保存</span>
 				</b-button>
+				<b-button variant="info" @click="onApply">申请</b-button>
 			</b-form>
 		</b-card-body>
 	</b-card>
 </template>
 <script>
-import { bind } from '@/api/account'
+import { bind, apply } from '@/api/account'
 export default {
 	name: 'page-bind',
 	data: () => ({
@@ -43,8 +44,8 @@ export default {
 		form: {
 			client_id: '',
 			client_secret: '',
-			redirect_uri: '',
-			account_type: null,
+			redirect_uri: 'https://olaindex.github.io/callback.html',
+			account_type: 1,
 		},
 	}),
 	methods: {
@@ -57,11 +58,23 @@ export default {
 				.then(res => {
 					let redirect = res.data.redirect
 					_this.loading = false
-					window.location.href = redirect
+					window.open(redirect)
 				})
 				.catch(err => {
 					console.log(err)
 					_this.loading = false
+				})
+		},
+		onApply(e) {
+			e.preventDefault()
+			let _this = this
+			apply(_this.form)
+				.then(res => {
+					let redirect = res.data.redirect
+					window.open(redirect)
+				})
+				.catch(err => {
+					console.log(err)
 				})
 		},
 	},

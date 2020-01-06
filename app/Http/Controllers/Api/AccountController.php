@@ -109,7 +109,7 @@ class AccountController extends BaseController
     {
         $account_id = $request->get('account_id', 0);
         setting_set('account_id', 0);
-        $account = Account::query()->find($account_id);
+        $account = Account::find($account_id);
         if (!$account->delete()) {
             return $this->fail('解绑账号失败，请稍后重试');
         }
@@ -138,16 +138,13 @@ class AccountController extends BaseController
         \Log::info('access_token', $token);
         $access_token = array_get($token, 'access_token');
         $refresh_token = array_get($token, 'refresh_token');
-        $expires = array_get($token, 'expires_in') !== 0 ? time() + array_get($token, 'expires_in') : 0;
-        $account_id = $state['id'] ?? 0;
-        $data = [
-            'access_token' => $access_token,
-            'refresh_token' => $refresh_token,
-            'access_token_expires' => date('Y-m-d H:i:s', $expires),
-        ];
-        $account = Account::query()->find($account_id);
-        $account->update($data);
-        // todo:加入后台刷新
+        $expires = array_has($token, 'expires_in') ? time() + array_get($token, 'expires_in') : 0;
+        $account_id = $accountCache['id'] ?? 0;
+        $account = Account::find($account_id);
+        $account->access_token = $access_token;
+        $account->refresh_token = $refresh_token;
+        $account->access_token_expires = date('Y-m-d H:i:s', $expires);
+        $account->save();
         refresh_account($account);
         $redirect = array_get($accountCache, 'redirect', '/');
         return redirect()->away($redirect);
@@ -160,6 +157,7 @@ class AccountController extends BaseController
      */
     public function info(Request $request)
     {
+
 
     }
 }
