@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\BaseController;
 use App\Models\Account;
 use App\Service\AuthorizeService;
+use App\Service\Disk;
 use Illuminate\Http\Request;
 
 /**
@@ -92,7 +93,7 @@ class AccountController extends BaseController
             ])); // 拼接state
         }
 
-        $authorizeUrl = AuthorizeService::init()->bind($accountCache)->getAuthorizeUrl($state);
+        $authorizeUrl = Disk::authorize()->getAuthorizeUrl($state);
 
         return $this->success([
             'redirect' => $authorizeUrl
@@ -134,7 +135,7 @@ class AccountController extends BaseController
             return $this->fail('Invalid state');
         }
         $accountCache = \Cache::get($state);
-        $token = AuthorizeService::init()->bind($accountCache)->getAccessToken($code);
+        $token = Disk::authorize()->getAccessToken($code);
         $token = $token->toArray();
         \Log::info('access_token', $token);
         $access_token = array_get($token, 'access_token');

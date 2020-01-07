@@ -15,13 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $account = setting('account');
-        $this->app->bind('OneDrive/Request', static function () use ($account) {
-            return OneDrive::init()->bind($account);
-        });
-        $this->app->bind('OneDrive/Authorize', static function () use ($account) {
-            return AuthorizeService::init()->bind($account);
-        });
+        //
     }
 
     /**

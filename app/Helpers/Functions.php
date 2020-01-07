@@ -125,8 +125,8 @@ if (!function_exists('setting')) {
             }
             return $settingData;
         });
-        $setting = collect($setting);
-        return $key ? $setting->get($key, $default) : $setting->all();
+        $setting = collect($setting)->all();
+        return $key ? array_get($setting, $key, $default) : $setting;
     }
 }
 if (!function_exists('setting_set')) {
@@ -197,7 +197,6 @@ if (!function_exists('refresh_token')) {
         if (!$account) {
             return false;
         }
-        $existingRefreshToken = $account->refresh_token;
         if (!$force) {
             $expires = strtotime($account->access_token_expires);
             $hasExpired = $expires - time() <= 30 * 10; // 半小时刷新token
@@ -205,7 +204,7 @@ if (!function_exists('refresh_token')) {
                 return false;
             }
         }
-        $token = \App\Service\AuthorizeService::init()->bind($account->toArray())->refreshAccessToken($existingRefreshToken);
+        $token = \App\Service\Disk::authorize()->refreshAccessToken(setting('account.refresh_token'));
         $token = $token->toArray();
         $access_token = array_get($token, 'access_token');
         $refresh_token = array_get($token, 'refresh_token');
@@ -233,7 +232,7 @@ if (!function_exists('refresh_account')) {
             return false;
         }
         refresh_token($account);
-        $response = \App\Service\OneDrive::init()->bind($account->toArray())->getDriveInfo();
+        $response = \App\Service\Disk::connect()->getDriveInfo();
         if ($response['errno'] === 0) {
             $extend = array_get($response, 'data');
             $account->account_email = array_get($extend, 'owner.user.email', '');
@@ -241,7 +240,7 @@ if (!function_exists('refresh_account')) {
             $account->status = \App\Models\Account::STATUS_ON;
             $account->save();
         } else {
-            $response = \App\Service\OneDrive::init()->bind($account->toArray())->getAccountInfo();
+            $response = \App\Service\Disk::connect()->getAccountInfo();
             $extend = array_get($response, 'data');
             $account->account_email = $response['errno'] === 0 ? array_get($extend, 'userPrincipalName') : '';
             $account->extend = $extend;
