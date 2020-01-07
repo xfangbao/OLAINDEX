@@ -54,7 +54,7 @@ class OneDrive
     public function bind($account): OneDrive
     {
         $this->account = $account;
-        $client = new Client(Client::setClientConfig($this->account));
+        $client = new Client(client_config($this->account));
         $base_url = $client->graph_endpoint;
         $api_version = $client->api_version;
         $access_token = array_get($account, 'access_token');

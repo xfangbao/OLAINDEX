@@ -5,6 +5,9 @@
  * This source file is subject to the MIT license that is bundled
  * with this source code in the file LICENSE.
  */
+
+use App\Service\Core\Constants;
+
 if (!function_exists('is_json')) {
     /**
      * 判断字符串是否是json
@@ -246,5 +249,41 @@ if (!function_exists('refresh_account')) {
             $account->save();
         }
         return true;
+    }
+}
+if (!function_exists('client_config')) {
+    /**
+     * client配置
+     * @param array $params
+     * @return mixed
+     */
+    function client_config($params)
+    {
+        $config = [
+            Constants::ACCOUNT_COM => [
+                'client_id' => array_get($params, 'client_id'),
+                'client_secret' => array_get($params, 'client_secret'),
+                'redirect_uri' => array_get($params, 'redirect_uri'),
+                'authorize_url' => Constants::AUTHORITY_URL,
+                'authorize_endpoint' => Constants::AUTHORIZE_ENDPOINT,
+                'token_endpoint' => Constants::TOKEN_ENDPOINT,
+                'graph_endpoint' => Constants::REST_ENDPOINT,
+                'api_version' => Constants::API_VERSION,
+                'scopes' => Constants::SCOPES
+            ],
+            Constants::ACCOUNT_CN => [
+                'client_id' => array_get($params, 'client_id'),
+                'client_secret' => array_get($params, 'client_secret'),
+                'redirect_uri' => array_get($params, 'redirect_uri'),
+                'authorize_url' => Constants::AUTHORITY_URL_21V,
+                'authorize_endpoint' => Constants::AUTHORIZE_ENDPOINT_21V,
+                'token_endpoint' => Constants::TOKEN_ENDPOINT_21V,
+                'graph_endpoint' => Constants::REST_ENDPOINT_21V,
+                'api_version' => Constants::API_VERSION,
+                'scopes' => Constants::SCOPES
+            ]
+        ];
+        return $config[array_get($params, 'account_type', 1)];
+
     }
 }

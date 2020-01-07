@@ -2,7 +2,8 @@
 
 namespace App\Providers;
 
-use App\Models\Setting;
+use App\Service\AuthorizeService;
+use App\Service\OneDrive;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,7 +15,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $account = setting('account');
+        $this->app->bind('OneDrive/Request', static function () use ($account) {
+            return OneDrive::init()->bind($account);
+        });
+        $this->app->bind('OneDrive/Authorize', static function () use ($account) {
+            return AuthorizeService::init()->bind($account);
+        });
     }
 
     /**

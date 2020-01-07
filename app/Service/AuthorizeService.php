@@ -63,7 +63,7 @@ class AuthorizeService
      */
     private function request($form_params): Collection
     {
-        $client = new Client(Client::setClientConfig($this->account));
+        $client = new Client(client_config($this->account));
         $form_params = array_merge([
             'client_id' => $client->client_id,
             'client_secret' => $client->client_secret,
@@ -102,7 +102,7 @@ class AuthorizeService
      */
     public function getAuthorizeUrl($state = ''): string
     {
-        $client = new Client(Client::setClientConfig($this->account));
+        $client = new Client(client_config($this->account));
         $values = [
             'client_id' => $client->client_id,
             'redirect_uri' => $client->redirect_uri,

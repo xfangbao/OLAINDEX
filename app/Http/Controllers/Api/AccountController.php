@@ -109,6 +109,7 @@ class AccountController extends BaseController
     {
         $account_id = $request->get('account_id', 0);
         setting_set('account_id', 0);
+        setting_set('account', []);
         $account = Account::find($account_id);
         if (!$account->delete()) {
             return $this->fail('解绑账号失败，请稍后重试');
@@ -139,17 +140,13 @@ class AccountController extends BaseController
         $access_token = array_get($token, 'access_token');
         $refresh_token = array_get($token, 'refresh_token');
         $expires = array_has($token, 'expires_in') ? time() + array_get($token, 'expires_in') : 0;
-        setting_set([
-            'access_token' => $access_token,
-            'refresh_token' => $refresh_token,
-            'expires' => $expires,
-        ]);
         $account_id = $accountCache['id'] ?? 0;
         $account = Account::find($account_id);
         $account->access_token = $access_token;
         $account->refresh_token = $refresh_token;
         $account->access_token_expires = date('Y-m-d H:i:s', $expires);
         $account->save();
+        setting_set('account', $account->toArray());
         refresh_account($account);
         $redirect = array_get($accountCache, 'redirect', '/');
         return redirect()->away($redirect);
