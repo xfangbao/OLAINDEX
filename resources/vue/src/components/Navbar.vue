@@ -1,5 +1,5 @@
 <template>
-	<b-navbar toggleable="md" type="dark" variant="primary" :sticky="true">
+	<b-navbar toggleable="md" type="dark" variant="primary" :sticky="false">
 		<b-container>
 			<b-navbar-brand :to="brand.to">{{ brand.name }}</b-navbar-brand>
 
@@ -21,8 +21,8 @@
 								v-for="item_child in item.children"
 								:key="item_child.name"
 								:to="item_child.to"
-								>{{ item_child.name }}</b-dropdown-item
-							>
+								>{{ item_child.name }}
+							</b-dropdown-item>
 						</b-nav-item-dropdown>
 
 						<b-nav-item v-else :to="item.to" :key="item.name">
@@ -44,7 +44,7 @@
 						</template>
 						<b-dropdown-item :to="{ name: 'dashboard' }">管理</b-dropdown-item>
 						<b-dropdown-item :to="{ name: 'home' }">资料</b-dropdown-item>
-						<b-dropdown-item :to="{ name: 'home' }">展示</b-dropdown-item>
+						<b-dropdown-item :to="{ name: 'home' }">首页</b-dropdown-item>
 						<b-dropdown-item @click="logout">退出</b-dropdown-item>
 					</b-nav-item-dropdown>
 				</b-navbar-nav>
@@ -54,6 +54,7 @@
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
+
 export default {
 	name: 'page-navbar',
 	props: {

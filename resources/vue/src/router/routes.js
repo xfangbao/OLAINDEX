@@ -16,7 +16,7 @@ export default [
 					title: 'OLAINDEX',
 					requiresAuth: false,
 				},
-				component: loadView('home/Index'),
+				component: loadView('home/List'),
 			},
 			{
 				path: '/message',

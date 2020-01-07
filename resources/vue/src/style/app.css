@@ -5,3 +5,9 @@
 .item-list .list-group-item {
     border: 0;
 }
+.page-content {
+	min-height: calc(100vh - 0.5rem);
+}
+.page-footer {
+	height: 0.5rem;
+}

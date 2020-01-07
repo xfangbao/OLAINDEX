@@ -1,9 +1,9 @@
 <template>
 	<div id="page-main">
 		<Navbar :menus="menus"></Navbar>
-		<b-container class="mt-3">
-			<router-view />
-			<Footer></Footer>
+		<b-container class="mt-4 page-wraaper">
+			<div class="page-content"><router-view /></div>
+			<div class="page-footer"><Footer /></div>
 		</b-container>
 	</div>
 </template>
