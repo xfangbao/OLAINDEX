@@ -187,18 +187,14 @@ if (!function_exists('install_path')) {
 if (!function_exists('refresh_token')) {
     /**
      * 刷新账户token
-     * @param \App\Models\Account $account
      * @param bool $force
      * @return bool
      * @throws \ErrorException
      */
-    function refresh_token($account, $force = false)
+    function refresh_token($force = false)
     {
-        if (!$account) {
-            return false;
-        }
         if (!$force) {
-            $expires = strtotime($account->access_token_expires);
+            $expires = strtotime(setting('account.access_token_expires'));
             $hasExpired = $expires - time() <= 30 * 10; // 半小时刷新token
             if (!$hasExpired) {
                 return false;
@@ -209,44 +205,42 @@ if (!function_exists('refresh_token')) {
         $access_token = array_get($token, 'access_token');
         $refresh_token = array_get($token, 'refresh_token');
         $expires = array_has($token, 'expires_in') ? time() + array_get($token, 'expires_in') : 0;
-        $account->access_token = $access_token;
-        $account->refresh_token = $refresh_token;
-        $account->access_token_expires = date('Y-m-d H:i:s', $expires);
-        $saved = $account->save();
-        if (!$saved) {
-            return false;
-        }
+        $access_token_expires = date('Y-m-d H:i:s', $expires);
+        $account = array_merge(setting('account'), [
+            'access_token' => $access_token,
+            'refresh_token' => $refresh_token,
+            'access_token_expires' => $access_token_expires,
+        ]);
+        setting_set('account', $account);
+        setting_set('refresh_at', \Carbon\Carbon::now());
         return true;
     }
 }
 if (!function_exists('refresh_account')) {
     /**
      * 刷新账户信息
-     * @param \App\Models\Account $account
      * @return bool
      * @throws ErrorException
      */
-    function refresh_account($account)
+    function refresh_account()
     {
-        if (!$account) {
-            return false;
-        }
-        refresh_token($account);
+        refresh_token();
         $response = \App\Service\Disk::connect()->getDriveInfo();
         if ($response['errno'] === 0) {
             $extend = array_get($response, 'data');
-            $account->account_email = array_get($extend, 'owner.user.email', '');
-            $account->extend = $extend;
-            $account->status = \App\Models\Account::STATUS_ON;
-            $account->save();
+            $account = array_merge(setting('account'), [
+                'account_email' => array_get($extend, 'owner.user.email', ''),
+                'extend' => $extend,
+            ]);
         } else {
             $response = \App\Service\Disk::connect()->getAccountInfo();
             $extend = array_get($response, 'data');
-            $account->account_email = $response['errno'] === 0 ? array_get($extend, 'userPrincipalName') : '';
-            $account->extend = $extend;
-            $account->status = \App\Models\Account::STATUS_OFF;
-            $account->save();
+            $account = array_merge(setting('account'), [
+                'account_email' => $response['errno'] === 0 ? array_get($extend, 'userPrincipalName') : '',
+                'extend' => $extend,
+            ]);
         }
+        setting_set('account', $account);
         return true;
     }
 }

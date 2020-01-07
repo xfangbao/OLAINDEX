@@ -54,7 +54,7 @@ export default {
 			e.preventDefault()
 			let _this = this
 			_this.loading = true
-			_this.form.redirect = window.location.href
+			_this.form.redirect = window.location.origin
 			bind(_this.form)
 				.then(res => {
 					let redirect = res.data.redirect

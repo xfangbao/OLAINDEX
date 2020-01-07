@@ -4,8 +4,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
-use App\Models\Account;
-use App\Service\AuthorizeService;
 use Illuminate\Http\Request;
 
 /**

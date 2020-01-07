@@ -4,8 +4,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
-use App\Models\Account;
-use App\Service\AuthorizeService;
 use App\Service\Disk;
 use Illuminate\Http\Request;
 
@@ -76,14 +74,9 @@ class AccountController extends BaseController
             'redirect_uri' => $redirect_uri
         ];
 
-        $account = Account::query()->create($data);
-        if (!$account) {
-            return $this->fail('绑定账号失败，请稍后重试');
-        }
-        setting_set('account_id', $account->id);
         $slug = str_random();
-        $accountCache = $account->toArray();
-        $accountCache = array_merge($accountCache, ['redirect' => $redirect]);
+        $accountCache = array_merge($data, ['redirect' => $redirect]);
+        setting_set('account', $data);
         \Cache::add($slug, $accountCache, 15 * 60); //15分钟内需完成绑定否则失效
         $state = $slug;
         if (str_contains($redirect_uri, 'olaindex.github.io')) {
@@ -108,13 +101,7 @@ class AccountController extends BaseController
      */
     public function unbind(Request $request)
     {
-        $account_id = $request->get('account_id', 0);
-        setting_set('account_id', 0);
         setting_set('account', []);
-        $account = Account::find($account_id);
-        if (!$account->delete()) {
-            return $this->fail('解绑账号失败，请稍后重试');
-        }
 
         return $this->success([]);
     }
@@ -141,13 +128,13 @@ class AccountController extends BaseController
         $access_token = array_get($token, 'access_token');
         $refresh_token = array_get($token, 'refresh_token');
         $expires = array_has($token, 'expires_in') ? time() + array_get($token, 'expires_in') : 0;
-        $account_id = $accountCache['id'] ?? 0;
-        $account = Account::find($account_id);
-        $account->access_token = $access_token;
-        $account->refresh_token = $refresh_token;
-        $account->access_token_expires = date('Y-m-d H:i:s', $expires);
-        $account->save();
-        setting_set('account', $account->toArray());
+        $access_token_expires = date('Y-m-d H:i:s', $expires);
+        $account = array_merge(setting('account'), [
+            'access_token' => $access_token,
+            'refresh_token' => $refresh_token,
+            'access_token_expires' => $access_token_expires,
+        ]);
+        setting_set('account', $account);
         refresh_account($account);
         $redirect = array_get($accountCache, 'redirect', '/');
         return redirect()->away($redirect);
@@ -159,9 +146,7 @@ class AccountController extends BaseController
      */
     public function info()
     {
-        $account_id = setting('account_id');
-        $account = Account::find($account_id);
-        $info = collect($account->extend)->only(['owner', 'quota']);
+        $info = collect(setting('account.extend'))->only(['owner', 'quota']);
 
         return $this->success($info->all());
     }

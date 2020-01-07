@@ -2,8 +2,6 @@
 
 namespace App\Providers;
 
-use App\Service\AuthorizeService;
-use App\Service\OneDrive;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

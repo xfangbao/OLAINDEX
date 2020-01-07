@@ -8,9 +8,6 @@
 
 namespace App\Service;
 
-
-use App\Models\Account;
-
 class Disk
 {
     public static function authorize()
