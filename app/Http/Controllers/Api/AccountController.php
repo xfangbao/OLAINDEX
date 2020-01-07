@@ -139,6 +139,11 @@ class AccountController extends BaseController
         $access_token = array_get($token, 'access_token');
         $refresh_token = array_get($token, 'refresh_token');
         $expires = array_has($token, 'expires_in') ? time() + array_get($token, 'expires_in') : 0;
+        setting_set([
+            'access_token' => $access_token,
+            'refresh_token' => $refresh_token,
+            'expires' => $expires,
+        ]);
         $account_id = $accountCache['id'] ?? 0;
         $account = Account::find($account_id);
         $account->access_token = $access_token;

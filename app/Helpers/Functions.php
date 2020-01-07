@@ -129,14 +129,22 @@ if (!function_exists('setting')) {
 if (!function_exists('setting_set')) {
     /**
      * 更新设置
-     * @param string $key
-     * @param string $value
+     * @param mixed $key
+     * @param mixed $value
      * @return mixed
      */
     function setting_set($key = '', $value = '')
     {
-        $value = is_array($value) ? json_encode($value) : $value;
-        \App\Models\Setting::query()->updateOrCreate(['name' => $key], ['value' => $value]);
+        if (!is_array($key)) {
+            $value = is_array($value) ? json_encode($value) : $value;
+            \App\Models\Setting::query()->updateOrCreate(['name' => $key], ['value' => $value]);
+        } else {
+            foreach ($key as $k => $v) {
+                $v = is_array($v) ? json_encode($v) : $v;
+                \App\Models\Setting::query()->updateOrCreate(['name' => $k], ['value' => $v]);
+            }
+        }
+
         return refresh_setting();
     }
 }

@@ -4,6 +4,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
+use App\Models\Account;
+use App\Service\AuthorizeService;
 use Illuminate\Http\Request;
 
 /**
@@ -13,6 +15,15 @@ use Illuminate\Http\Request;
  */
 class SourceController extends BaseController
 {
+    private $account;
+
+    /**
+     * @throws \ErrorException
+     */
+    public function preVerify()
+    {
+    }
+
     /**
      * 列表
      * @param Request $request
@@ -20,6 +31,7 @@ class SourceController extends BaseController
      */
     public function list(Request $request)
     {
+        $path = $request->get('path');
         return $this->success([]);
     }
 
