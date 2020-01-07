@@ -158,7 +158,8 @@ class AccountController extends BaseController
     {
         $account_id = setting('account_id');
         $account = Account::find($account_id);
-        $info = $account->extend;
-        return $this->success($info);
+        $info = collect($account->extend)->only(['owner', 'quota']);
+
+        return $this->success($info->all());
     }
 }
