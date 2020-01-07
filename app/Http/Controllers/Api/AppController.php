@@ -4,7 +4,6 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
-use App\Models\Setting;
 
 /**
  * 应用基础
@@ -19,13 +18,6 @@ class AppController extends BaseController
      */
     public function config()
     {
-        $setting = Setting::query()
-            ->select(['name', 'value'])
-            ->get();
-        $settingData = [];
-        foreach ($setting as $detail) {
-            $settingData = array_add($settingData, $detail->name, $detail->value);
-        }
-        return $this->success($settingData);
+        return $this->success(setting());
     }
 }

@@ -116,11 +116,11 @@ if (!function_exists('setting')) {
             } catch (Exception $e) {
                 return [];
             }
-            $data = [];
-            foreach ($setting->toArray() as $detail) {
-                $data[$detail['name']] = $detail['value'];
+            $settingData = [];
+            foreach ($setting as $detail) {
+                $settingData = array_add($settingData, $detail->name, $detail->value);
             }
-            return $data;
+            return $settingData;
         });
         $setting = collect($setting);
         return $key ? $setting->get($key, $default) : $setting->all();
