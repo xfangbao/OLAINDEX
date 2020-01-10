@@ -135,7 +135,7 @@ class AccountController extends BaseController
             'access_token_expires' => $access_token_expires,
         ]);
         setting_set('account', $account);
-        refresh_account($account);
+        refresh_account();
         $redirect = array_get($accountCache, 'redirect', '/');
         return redirect()->away($redirect);
     }
