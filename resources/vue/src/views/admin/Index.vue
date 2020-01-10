@@ -18,7 +18,9 @@
 					<b-form-group id="input-group" label="已绑定账号" label-for="bind_account">
 						<b-form-input id="bind_account" v-model="driver.account" type="text" disabled></b-form-input>
 					</b-form-group>
-					<b-button type="submit" variant="primary">解绑/绑定账户</b-button>
+					<b-button type="submit" :variant="bindOrNot ? `danger` : `primary`"
+						>{{ bindOrNot ? `解绑` : `绑定` }}账户</b-button
+					>
 				</b-form>
 			</div>
 		</b-card-body>
@@ -26,6 +28,7 @@
 </template>
 <script>
 import { info } from '@/api/account'
+import { isEmpty } from '@/utils'
 export default {
 	name: 'page-index',
 	data: () => ({
@@ -37,25 +40,28 @@ export default {
 			account: '',
 		},
 	}),
+	computed: {
+		bindOrNot: function() {
+			return this.driver.account !== ''
+		},
+	},
 	methods: {
 		onSubmit(e) {
 			let _this = this
 			e.preventDefault()
-			// alert(JSON.stringify(this.form))
 			_this.$router.push({ name: 'bind' })
 		},
 		getDriverInfo() {
 			let _this = this
 			info().then(res => {
-				// let data = Object.assign(_this.driver, res.data)
 				let data = res.data
-				_this.driver.total = data.quota.total
-				_this.driver.used = data.quota.used
-				_this.driver.remaining = data.quota.remaining
-				_this.driver.deleted = data.quota.deleted
-				_this.driver.account = data.owner.user.email
-
-				console.log(data)
+				if (!isEmpty(data)) {
+					_this.driver.total = data.quota.total
+					_this.driver.used = data.quota.used
+					_this.driver.remaining = data.quota.remaining
+					_this.driver.deleted = data.quota.deleted
+					_this.driver.account = data.owner.user.email
+				}
 			})
 		},
 	},
