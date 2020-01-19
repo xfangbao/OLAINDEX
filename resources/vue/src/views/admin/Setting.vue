@@ -13,19 +13,29 @@
 								placeholder="站点名称"
 							></b-form-input>
 						</b-form-group>
-						<b-form-group id="input-basic-1" label="本地模式（二选一）" label-for="basic-1">
+						<!-- <b-form-group id="input-basic-1" label="本地模式（二选一）" label-for="basic-1">
 							<b-form-radio-group v-model="form.is_local" name="radio-is_local" id="basic-1">
 								<b-form-radio value="0">关闭</b-form-radio>
 								<b-form-radio value="1">开启</b-form-radio>
 							</b-form-radio-group>
-						</b-form-group>
-						<b-form-group id="input-basic-2" label="显示目录" label-for="basic-2">
+						</b-form-group> -->
+						<b-form-group id="input-basic-2" label="资源目录" label-for="basic-2">
 							<b-form-input
 								id="basic-2"
 								v-model="form.root_path"
 								required
-								placeholder="显示根目录"
+								placeholder="资源根目录"
 							></b-form-input>
+						</b-form-group>
+						<b-form-group id="input-basic-2-1" label="隐藏目录" label-for="basic-2-1">
+							<b-form-tags
+								id="basic-2-1"
+								v-model="form.hide_path"
+								placeholder="请输入需要隐藏的目录"
+							></b-form-tags>
+						</b-form-group>
+						<b-form-group id="input-basic-2-2" label="隐藏目录密码" label-for="basic-2-2">
+							<b-form-input id="basic-2-2" v-model="form.hide_path_password"></b-form-input>
 						</b-form-group>
 						<b-form-group
 							id="input-basic-3"
@@ -218,8 +228,10 @@ export default {
 		loading: false,
 		form: {
 			site_name: 'OLAINDEX',
-			is_local: 0,
+			// is_local: 0,
 			root_path: '/share',
+			hide_path: [],
+			hide_path_password: '',
 			expires: '1800',
 			open_search: 0,
 			search_limit: '5,5',

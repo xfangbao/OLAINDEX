@@ -16,6 +16,7 @@ class SourceController extends BaseController
     private $account;
 
     /**
+     * 请求预处理
      * @throws \ErrorException
      */
     public function preVerify()
@@ -34,7 +35,7 @@ class SourceController extends BaseController
     }
 
     /**
-     * 详情
+     * 详情/预览
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
