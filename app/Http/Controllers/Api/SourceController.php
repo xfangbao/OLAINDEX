@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\BaseController;
+use App\Service\Disk;
 use Illuminate\Http\Request;
 
 /**
@@ -13,16 +14,6 @@ use Illuminate\Http\Request;
  */
 class SourceController extends BaseController
 {
-    private $account;
-
-    /**
-     * 请求预处理
-     * @throws \ErrorException
-     */
-    public function preVerify()
-    {
-    }
-
     /**
      * 列表
      * @param Request $request
@@ -30,8 +21,22 @@ class SourceController extends BaseController
      */
     public function list(Request $request)
     {
-        $path = $request->get('path');
-        return $this->success([]);
+        $query = $request->get('query', '/');
+        $limit = $request->get('limit', 10);
+        $graphPath = trans_request_path($query);
+        /*$originPath = rawurldecode(trim(trans_absolute_path($query), '/'));
+        $pathArray = $originPath ? explode('/', $originPath) : [];*/
+        $key = sprintf('one:list:%s', $graphPath);
+        $list = \Cache::remember($key, setting('expires'), static function () use ($graphPath) {
+            $resp = Disk::connect()->getItemListByPath($graphPath, '?select=id,eTag,name,size,lastModifiedDateTime,file,image,folder,'
+                . 'parentReference,@microsoft.graph.downloadUrl&expand=thumbnails');
+            if ($resp['errno'] === 0) {
+                return $resp['data'];
+            }
+            return [];
+        });
+        $data = $this->paginate($list, $limit);
+        return $this->success($data);
     }
 
     /**

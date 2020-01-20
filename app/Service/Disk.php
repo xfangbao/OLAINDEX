@@ -18,6 +18,12 @@ class Disk
 
     public static function connect()
     {
+        try {
+            refresh_token();
+        } catch (\ErrorException $e) {
+            throw new $e('请求密钥失效');
+        }
+
         $account = array_collapse([setting('account_client'), setting('account')]);
         return OneDrive::init()->bind($account);
     }

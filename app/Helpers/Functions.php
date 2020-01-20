@@ -90,20 +90,6 @@ if (!function_exists('trans_absolute_path')) {
         return str_replace('//', '/', '/' . implode('/', $absolutes) . '/');
     }
 }
-if (!function_exists('flash_message')) {
-    /**
-     * 操作成功或者失败的提示
-     *
-     * @param string $message
-     * @param bool $success
-     */
-    function flash_message($message = '成功', $success = true): void
-    {
-        $alertType = $success ? 'success' : 'danger';
-        \Session::put('alertMessage', $message);
-        \Session::put('alertType', $alertType);
-    }
-}
 if (!function_exists('setting')) {
     /**
      * 获取设置
