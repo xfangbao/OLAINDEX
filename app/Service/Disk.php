@@ -12,13 +12,13 @@ class Disk
 {
     public static function authorize()
     {
-        $account = setting('account');
+        $account = array_collapse([setting('account_client'), setting('account')]);
         return AuthorizeService::init()->bind($account);
     }
 
     public static function connect()
     {
-        $account = setting('account');
+        $account = array_collapse([setting('account_client'), setting('account')]);
         return OneDrive::init()->bind($account);
     }
 

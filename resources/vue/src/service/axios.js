@@ -80,7 +80,7 @@ _axios.interceptors.response.use(
 					if (error.response.data.message) {
 						error.message = error.response.data.message
 					} else {
-						error.message = '未找到内容'
+						error.message = '404 NOT FOUND'
 					}
 					break
 

@@ -1,6 +1,6 @@
 <template>
 	<b-card bg-variant="light" class="mb-3" no-body>
-		<template v-slot:header> <i class="ri-settings-fill"></i> 资料修改 </template>
+		<template v-slot:header> <i class="ri-user-fill"></i> 资料修改 </template>
 		<b-card-body>
 			<b-form @submit="onSubmit">
 				<b-form-group id="input-basic-0" label="旧密码" label-for="basic-0">

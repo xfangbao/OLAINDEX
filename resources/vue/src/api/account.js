@@ -12,6 +12,6 @@ export function apply(params) {
 	return axios.post('/api/account/apply', params)
 }
 
-export function info(params) {
-	return axios.get('/api/account/info', params)
+export function info() {
+	return axios.get('/api/account/info')
 }

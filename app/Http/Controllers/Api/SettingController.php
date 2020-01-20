@@ -29,10 +29,15 @@ class SettingController extends BaseController
      */
     public function index(Request $request)
     {
+        $filter = $request->get('filter');
         $setting = Setting::query()->get();
         $settingData = [];
         foreach ($setting->toArray() as $detail) {
             $settingData[$detail['name']] = $detail['value'];
+        }
+        if ($filter) {
+            $keys = explode(',', $filter);
+            $settingData = collect($settingData)->only($keys);
         }
         return $this->success($settingData);
     }

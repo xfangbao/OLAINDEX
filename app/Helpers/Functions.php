@@ -107,8 +107,8 @@ if (!function_exists('flash_message')) {
 if (!function_exists('setting')) {
     /**
      * 获取设置
-     * @param string $key
-     * @param string $default
+     * @param mixed $key
+     * @param mixed $default
      * @return mixed
      */
     function setting($key = '', $default = '')

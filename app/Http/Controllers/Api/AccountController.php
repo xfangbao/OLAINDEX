@@ -76,7 +76,7 @@ class AccountController extends BaseController
 
         $slug = str_random();
         $accountCache = array_merge($data, ['redirect' => $redirect]);
-        setting_set('account', $data);
+        setting_set('account_client', $data);
         \Cache::add($slug, $accountCache, 15 * 60); //15分钟内需完成绑定否则失效
         $state = $slug;
         if (str_contains($redirect_uri, 'olaindex.github.io')) {

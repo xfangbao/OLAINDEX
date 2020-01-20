@@ -37,6 +37,7 @@
 </template>
 <script>
 import { bind, apply } from '@/api/account'
+import { getAllConfig } from '@/api/setting'
 export default {
 	name: 'page-bind',
 	data: () => ({
@@ -49,6 +50,14 @@ export default {
 		},
 	}),
 	methods: {
+		init() {
+			let _this = this
+			let params = { params: { filter: 'account_client' } }
+			getAllConfig(params).then(res => {
+				let data = Object.assign(_this.form, res.data.account_client)
+				console.log(data)
+			})
+		},
 		// todo:已绑定账号，跳转首页
 		onSubmit(e) {
 			e.preventDefault()
@@ -78,6 +87,9 @@ export default {
 					console.log(err)
 				})
 		},
+	},
+	created() {
+		this.init()
 	},
 }
 </script>
