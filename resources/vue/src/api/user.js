@@ -15,3 +15,7 @@ export function refreshToken(params) {
 export function getUserInfo() {
 	return axios.get('/api/user')
 }
+
+export function updateProfile(params) {
+	return axios.post('/api/profile', params)
+}

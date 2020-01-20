@@ -78,6 +78,38 @@ class AuthController extends BaseController
     }
 
     /**
+     * 密码修改
+     * @param Request $request
+     * @return mixed
+     */
+    public function profile(Request $request)
+    {
+        /* @var $user User */
+        $user = \Auth::user();
+        $oldPassword = $request->get('old_password');
+        $password = $request->get('password');
+        $passwordConfirm = $request->get('password_confirm');
+
+        if (!\Hash::check($oldPassword, $user->password)) {
+            return $this->fail('请确保原密码的准确性');
+        }
+        if ($password !== $passwordConfirm) {
+            return $this->fail('两次密码不一致');
+        }
+
+        $saved = User::query()->update([
+            'id' => $user->id,
+            'password' => bcrypt($password),
+        ]);
+
+        $msg = $saved ? '密码修改成功' : '请稍后重试';
+        if (!$saved) {
+            return $this->fail($msg);
+        }
+        return $this->success($msg);
+    }
+
+    /**
      * 刷新令牌
      * @return \Illuminate\Http\JsonResponse
      * @throws \Exception

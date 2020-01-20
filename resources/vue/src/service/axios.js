@@ -96,7 +96,7 @@ _axios.interceptors.response.use(
 					error.message = error.response.data.message
 					break
 				case 500:
-					error.message = '服务器内部错误'
+					error.message = error.response.data.message
 					break
 
 				case 501:

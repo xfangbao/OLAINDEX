@@ -15,6 +15,8 @@
 Route::post('/login', 'AuthController@login');
 Route::post('/logout', 'AuthController@logout');
 Route::get('/user', 'AuthController@user');
+Route::post('/profile', 'AuthController@profile');
+Route::post('/refresh', 'AuthController@refresh');
 
 Route::get('/settings', 'SettingController@index');
 Route::post('/settings', 'SettingController@update');

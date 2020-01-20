@@ -43,7 +43,7 @@
 							{{ username }}
 						</template>
 						<b-dropdown-item :to="{ name: 'dashboard' }">管理</b-dropdown-item>
-						<b-dropdown-item :to="{ name: 'home' }">资料</b-dropdown-item>
+						<b-dropdown-item :to="{ name: 'profile' }">资料</b-dropdown-item>
 						<b-dropdown-item :to="{ name: 'home' }">首页</b-dropdown-item>
 						<b-dropdown-item @click="logout">退出</b-dropdown-item>
 					</b-nav-item-dropdown>

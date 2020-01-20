@@ -7,7 +7,7 @@
 					<b-form-select
 						v-model="form.account_type"
 						:options="[
-							{ value: 0, text: '国内版' },
+							{ value: 0, text: '国内版（世纪互联）' },
 							{ value: 1, text: '通用版' },
 						]"
 					>
@@ -26,7 +26,7 @@
 					<b-form-input id="basic-3" v-model="form.redirect_uri" type="text"></b-form-input>
 				</b-form-group>
 
-				<b-button type="submit" variant="primary">
+				<b-button type="submit" variant="primary" class="mr-3">
 					<b-spinner small v-show="loading"></b-spinner>
 					<span class="mx-2">保存</span>
 				</b-button>

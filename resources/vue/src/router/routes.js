@@ -69,6 +69,15 @@ export default [
 				},
 				component: loadView('admin/Setting'),
 			},
+			{
+				path: '/admin/profile',
+				name: 'profile',
+				meta: {
+					title: '资料',
+					requiresAuth: true,
+				},
+				component: loadView('admin/Profile'),
+			},
 		],
 	},
 ]

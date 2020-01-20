@@ -23,6 +23,7 @@ class SettingController extends BaseController
     }
 
     /**
+     * 获取配置
      * @param Request $request
      * @return mixed
      */
@@ -37,6 +38,7 @@ class SettingController extends BaseController
     }
 
     /**
+     * 更新配置
      * @param Request $request
      * @return mixed
      */
