@@ -16,7 +16,13 @@
 			<div class="mb-3">
 				<b-form @submit="onSubmit">
 					<b-form-group id="input-group" label="已绑定账号" label-for="bind_account">
-						<b-form-input id="bind_account" v-model="driver.account" type="text" disabled></b-form-input>
+						<b-form-input
+							id="bind_account"
+							v-model="driver.account"
+							type="text"
+							placeholder="尚未绑定账号"
+							disabled
+						></b-form-input>
 					</b-form-group>
 					<b-button type="submit" :variant="bindOrNot ? `danger` : `primary`"
 						>{{ bindOrNot ? `解绑` : `绑定` }}账户</b-button
