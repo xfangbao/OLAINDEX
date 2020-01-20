@@ -2,7 +2,7 @@
 	<b-card bg-variant="light" class="mb-3" no-body>
 		<template v-slot:header> <i class="ri-window-fill"></i> 绑定设置 </template>
 		<b-card-body>
-			<b-form @submit="onSubmit">
+			<b-form @submit="onSubmit" @reset="onReset">
 				<b-form-group id="input-basic-0" label="账号类型" label-for="basic-0">
 					<b-form-select
 						v-model="form.account_type"
@@ -26,11 +26,12 @@
 					<b-form-input id="basic-3" v-model="form.redirect_uri" type="text"></b-form-input>
 				</b-form-group>
 
-				<b-button type="submit" variant="primary" class="mr-3">
+				<b-button variant="info" class="mr-2" @click="onApply">申请</b-button>
+				<b-button type="reset" variant="danger" class="mr-2">清空</b-button>
+				<b-button type="submit" variant="primary">
 					<b-spinner small v-show="loading"></b-spinner>
 					<span class="mx-2">保存</span>
 				</b-button>
-				<b-button variant="info" @click="onApply">申请</b-button>
 			</b-form>
 		</b-card-body>
 	</b-card>
@@ -86,6 +87,13 @@ export default {
 				.catch(err => {
 					console.log(err)
 				})
+		},
+		onReset(evt) {
+			evt.preventDefault()
+			this.form.client_id = ''
+			this.form.client_secret = ''
+			this.form.redirect_uri = ''
+			this.form.account_type = 1
 		},
 	},
 	created() {
