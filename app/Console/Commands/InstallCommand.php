@@ -27,6 +27,7 @@ class InstallCommand extends Command
      */
     public function handle(): void
     {
+        // step 1
         $canWritable = is_writable(storage_path());
         if (!$canWritable) {
             $this->warn('Please make sure the [storage] path can write!');
@@ -37,6 +38,7 @@ class InstallCommand extends Command
             exit;
         }
 
+        // step 2
         $envSampleFile = base_path('.env.example');
         $envFile = base_path('.env');
         if (!file_exists($envSampleFile)) {
@@ -60,8 +62,10 @@ class InstallCommand extends Command
             file_put_contents($envFile, $env);
         }
 
+        // step 3
         $this->call('config:cache');
 
+        // step 4
         $sqlFile = install_path('data/database.sqlite');
         $sqlSampleFile = install_path('data/database.sample.sqlite');
         if (!file_exists($sqlSampleFile)) {

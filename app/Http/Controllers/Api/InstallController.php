@@ -15,12 +15,21 @@ use App\Http\Controllers\BaseController;
  * 安装流程
  * Class InstallController
  * @package App\Http\Controllers\Api
+ * @todo:自定义安装
  */
 class InstallController extends BaseController
 {
-    public function index()
+    public function checkInstall()
     {
-        // todo:自定义安装
+        $canWritable = is_writable(storage_path());
+        if (!$canWritable) {
+            $this->fail('请确保 [storage] 目录有读写权限');
+        }
+        $lockFile = install_path('install.lock');
+        if (file_exists($lockFile)) {
+            $this->fail('已安装完毕');
+        }
+        return $this->success();
 
     }
 

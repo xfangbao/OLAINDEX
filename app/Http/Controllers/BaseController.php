@@ -14,7 +14,7 @@ class BaseController extends Controller
      * @param string $message
      * @return \Illuminate\Http\JsonResponse
      */
-    public function success($data, $code = 200, $message = 'ok')
+    public function success($data = [], $code = 200, $message = 'success')
     {
         return response()->json([
             'code' => $code,

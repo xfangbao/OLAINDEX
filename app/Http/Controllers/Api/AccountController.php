@@ -103,7 +103,7 @@ class AccountController extends BaseController
     {
         setting_set('account', []);
 
-        return $this->success([]);
+        return $this->success();
     }
 
     /**

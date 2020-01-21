@@ -46,7 +46,7 @@ class SourceController extends BaseController
      */
     public function detail(Request $request)
     {
-        return $this->success([]);
+        return $this->success();
     }
 
     /**
