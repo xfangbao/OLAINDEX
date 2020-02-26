@@ -5,7 +5,7 @@
 export default {
 	name: 'disk-breadcrumb',
 	props: {
-		items: Object,
+		items: Array,
 	},
 }
 </script>

@@ -19,10 +19,10 @@ export default [
 				component: loadView('home/List'),
 			},
 			{
-				path: '/message',
-				name: 'message',
+				path: '/error',
+				name: 'error',
 				meta: {
-					title: '消息',
+					title: '提示',
 					requiresAuth: false,
 				},
 				component: loadView('home/Message'),

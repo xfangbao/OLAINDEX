@@ -1,5 +1,5 @@
 <template>
-	<b-card bg-variant="light" class="border-0 mb-3" header-class="border-bottom-1">
+	<b-card class="border-light mb-3">
 		<template v-slot:header><i class="ri-quill-pen-fill"></i> Readme</template>
 		<b-card-body>
 			<div class="markdown-body" v-html="toMarkdown(content)"></div>
