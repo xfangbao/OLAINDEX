@@ -9,9 +9,9 @@ class BaseController extends Controller
 {
     /**
      * 数据返回
-     * @param mixed $data
-     * @param int $code
-     * @param string $message
+     * @param mixed $data 数据
+     * @param int $code 代码
+     * @param string $message 信息
      * @return \Illuminate\Http\JsonResponse
      */
     public function success($data = [], $code = 200, $message = 'success')
@@ -25,9 +25,9 @@ class BaseController extends Controller
 
     /**
      * 数据返回
-     * @param string $message
-     * @param int $code
-     * @param mixed $data
+     * @param string $message 错误信息
+     * @param int $code 错误代码
+     * @param mixed $data 错误数据
      * @return \Illuminate\Http\JsonResponse
      */
     public function fail($message, $code = 500, $data = [])
@@ -41,7 +41,7 @@ class BaseController extends Controller
 
     /**
      * 抛出字段验证异常
-     * @param $validator
+     * @param $validator \Illuminate\Validation\Validator 验证器
      * @return \Illuminate\Http\JsonResponse
      */
     protected function errorBadRequest($validator)
@@ -64,11 +64,12 @@ class BaseController extends Controller
 
     /**
      * 数组分页
-     * @param array $items
-     * @param int $perPage
+     * @param array $items 分页数据
+     * @param int $perPage 分页大小
+     * @param array $extra 额外数据
      * @return array
      */
-    public function paginate($items = [], $perPage = 10)
+    public function paginate($items = [], $perPage = 10, $extra = [])
     {
         $pageStart = request()->get('page', 1);
         $offSet = ($pageStart * $perPage) - $perPage;
@@ -98,6 +99,7 @@ class BaseController extends Controller
                 'prev_page_url',
                 'next_page_url',
             ]),
+            'extra' => $extra
         ];
     }
 }
