@@ -15,7 +15,7 @@
 					<b-col cols="4" sm="2">操作</b-col>
 				</b-row>
 			</template>
-			<b-col flush class="border-0 item-list">
+			<b-list-group flush class="border-0 item-list">
 				<template v-for="item in items">
 					<b-list-group-item :key="item.id">
 						<b-row>
