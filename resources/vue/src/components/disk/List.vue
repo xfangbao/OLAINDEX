@@ -15,31 +15,19 @@
 					<b-col cols="4" sm="2">操作</b-col>
 				</b-row>
 			</template>
-			<b-list-group flush class="border-0 item-list">
-				<b-list-group-item>
-					<b-row>
-						<b-col cols="8" sm="6"><i class="ri-folder-fill"></i> Data</b-col>
-						<b-col sm="2" class="d-none d-md-block d-md-none float-right">Mar 01 16:22</b-col>
-						<b-col sm="2" class="d-none d-md-block d-md-none float-right">-</b-col>
-						<b-col cols="4" sm="2">操作</b-col>
-					</b-row>
-				</b-list-group-item>
-				<b-list-group-item>
-					<b-row>
-						<b-col cols="8" sm="6"><i class="ri-folder-fill"></i> Data</b-col>
-						<b-col sm="2" class="d-none d-md-block d-md-none">Mar 01 16:22</b-col>
-						<b-col sm="2" class="d-none d-md-block d-md-none">-</b-col>
-						<b-col cols="4" sm="2">操作</b-col>
-					</b-row>
-				</b-list-group-item>
-				<b-list-group-item>
-					<b-row>
-						<b-col cols="8" sm="6"><i class="ri-folder-fill"></i> Data</b-col>
-						<b-col sm="2" class="d-none d-md-block d-md-none">Mar 01 16:22</b-col>
-						<b-col sm="2" class="d-none d-md-block d-md-none">-</b-col>
-						<b-col cols="4" sm="2">操作</b-col>
-					</b-row>
-				</b-list-group-item>
+			<b-col flush class="border-0 item-list">
+				<template v-for="item in items">
+					<b-list-group-item :key="item.id">
+						<b-row>
+							<b-col cols="8" sm="6"><i class="ri-folder-fill"></i> {{ item.name }}</b-col>
+							<b-col sm="2" class="d-none d-md-block d-md-none float-right">{{ item.date }}</b-col>
+							<b-col sm="2" class="d-none d-md-block d-md-none float-right">{{
+								item.size | readablizeBytes
+							}}</b-col>
+							<b-col cols="4" sm="2">操作</b-col>
+						</b-row>
+					</b-list-group-item>
+				</template>
 				<b-list-group-item>
 					<b-row>
 						<b-col cols="8" sm="6" style="text-overflow:ellipsis;overflow:hidden;white-space:nowrap;"
@@ -56,5 +44,27 @@
 <script>
 export default {
 	name: 'disk-list',
+	data: () => ({
+		items: [
+			{
+				id: 1,
+				name: 'data',
+				date: 'Mar 01 16:22',
+				size: '456321',
+			},
+			{
+				id: 2,
+				name: 'video',
+				date: 'Mar 01 16:22',
+				size: '123456',
+			},
+			{
+				id: 3,
+				name: 'music',
+				date: 'Mar 01 16:22',
+				size: '111222',
+			},
+		],
+	}),
 }
 </script>

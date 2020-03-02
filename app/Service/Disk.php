@@ -12,6 +12,7 @@ class Disk
 {
     public static function authorize()
     {
+        // todo:兼容多账号
         $account = array_collapse([setting('account_client'), setting('account')]);
         return AuthorizeService::init()->bind($account);
     }
@@ -24,6 +25,7 @@ class Disk
             throw new $e('请求密钥失效');
         }
 
+        // todo:兼容多账号
         $account = array_collapse([setting('account_client'), setting('account')]);
         return OneDrive::init()->bind($account);
     }
