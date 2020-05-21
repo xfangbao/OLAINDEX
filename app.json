@@ -1,0 +1,7 @@
+{
+  "name": "olaindex",
+  "description": "Deploy olaindex to heroku",
+  "website": "https://github.com/xfangbao/OLAINDEX",
+  "repository": "https://github.com/xfangbao/OLAINDEX",
+  "success_url": "/"
+}
